@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [main]
   release:
-    types: [published]
+    types: [created]
 
 jobs:
   build:
@@ -38,6 +38,7 @@ jobs:
             build
 
       - name: Create DMG
+        id: create_dmg
         run: |
           # Find built app
           APP_PATH=$(find DerivedData/Build/Products/Release -name "*.app" -type d | head -1)
@@ -57,15 +58,15 @@ jobs:
             -format UDZO \
             "MDPreview.dmg"
 
+          ls -la MDPreview.dmg
+
       - name: Upload DMG to Release
         if: github.event_name == 'release'
-        uses: softprops/action-gh-release@v2
-        with:
-          files: MDPreview.dmg
-          draft: false
-          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(cat VERSION)
+          gh release upload "$VERSION" MDPreview.dmg --clobber
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

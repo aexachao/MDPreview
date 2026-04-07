@@ -21,6 +21,13 @@
 
 从 [GitHub Releases](https://github.com/aexachao/MDPreview/releases) 页面下载最新版本。
 
+> **注意**：如果打开 DMG 时提示"MDPreview.app 已损坏，无法打开"，这是 macOS Gatekeeper 安全机制导致的。可通过以下方式解决：
+>
+> 1. **方法一**：在 MDPreview.app 上**右键**（或 Control+点击），选择"打开"，然后在弹窗中点击"打开"
+> 2. **方法二**：前往**系统设置** > **隐私与安全性**，向下滚动找到"仍要打开"选项
+>
+> 此提示是因为应用使用了 ad-hoc 签名（无付费 Apple Developer 证书），应用本身是安全的。
+
 ### 源码构建
 
 ```bash
@@ -42,7 +49,7 @@ open MDPreview.xcodeproj
 
 ## 版本
 
-当前版本：`1.0.0`
+当前版本：`1.0.1`
 
 历史版本请查看 [CHANGELOG.md](CHANGELOG.md)。
 
