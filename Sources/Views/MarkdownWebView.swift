@@ -46,21 +46,43 @@ struct MarkdownWebView: NSViewRepresentable {
 
             function getVisibleHeading() {
                 var headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                if (headings.length === 0) return null;
+
                 var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
                 var viewportHeight = window.innerHeight;
+                var bestHeading = null;
+                var bestDistance = Infinity;
 
                 for (var i = 0; i < headings.length; i++) {
                     var heading = headings[i];
                     var rect = heading.getBoundingClientRect();
-                    var top = rect.top + scrollTop;
 
-                    // Heading is visible if its top is above the middle of viewport
-                    // and its bottom is below the top of viewport
-                    if (top <= scrollTop + viewportHeight * 0.5 && top + rect.height > scrollTop) {
-                        return heading.id;
+                    // Skip headings with no ID
+                    if (!heading.id) continue;
+
+                    // Check if heading is in viewport (top edge is in upper half)
+                    if (rect.top >= 0 && rect.top < viewportHeight * 0.6) {
+                        var distance = Math.abs(rect.top);
+                        if (distance < bestDistance) {
+                            bestDistance = distance;
+                            bestHeading = heading.id;
+                        }
                     }
                 }
-                return null;
+
+                // If no heading found in upper half, find the first heading above viewport
+                if (!bestHeading) {
+                    for (var i = 0; i < headings.length; i++) {
+                        var heading = headings[i];
+                        if (!heading.id) continue;
+                        if (heading.getBoundingClientRect().top < 0) {
+                            bestHeading = heading.id;
+                            break;
+                        }
+                    }
+                }
+
+                return bestHeading;
             }
 
             function sendVisibleHeading() {
@@ -79,7 +101,7 @@ struct MarkdownWebView: NSViewRepresentable {
             }, {passive: true});
 
             // Send initial heading after a short delay
-            setTimeout(sendVisibleHeading, 100);
+            setTimeout(sendVisibleHeading, 200);
         })();
         """
     }
