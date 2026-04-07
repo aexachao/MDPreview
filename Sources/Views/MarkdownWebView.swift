@@ -4,6 +4,7 @@ import WebKit
 struct MarkdownWebView: NSViewRepresentable {
     let html: String
     var scrollToAnchor: String?
+    var onVisibleHeadingChange: ((String?) -> Void)?
 
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
@@ -13,12 +14,21 @@ struct MarkdownWebView: NSViewRepresentable {
         webView.setValue(false, forKey: "drawsBackground")
         webView.navigationDelegate = context.coordinator
         context.coordinator.webView = webView
+
+        // Inject scroll observer script
+        let scrollScript = WKUserScript(
+            source: scrollObserverScript,
+            injectionTime: .atDocumentEnd,
+            forMainFrameOnly: true
+        )
+        webView.configuration.userContentController.addUserScript(scrollScript)
+
         return webView
     }
 
     func updateNSView(_ webView: WKWebView, context: Context) {
-        // Store the anchor to scroll to after page loads
         context.coordinator.pendingAnchor = scrollToAnchor
+        context.coordinator.onVisibleHeadingChange = onVisibleHeadingChange
         webView.loadHTMLString(html, baseURL: nil)
     }
 
@@ -26,13 +36,68 @@ struct MarkdownWebView: NSViewRepresentable {
         Coordinator(self)
     }
 
-    class Coordinator: NSObject, WKNavigationDelegate {
+    private var scrollObserverScript: String {
+        """
+        (function() {
+            var visibleHeading = null;
+
+            function getVisibleHeading() {
+                var headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                var viewportHeight = window.innerHeight;
+
+                for (var i = 0; i < headings.length; i++) {
+                    var heading = headings[i];
+                    var rect = heading.getBoundingClientRect();
+                    var top = rect.top + scrollTop;
+
+                    // Heading is visible if its top is above the middle of viewport
+                    // and its bottom is below the top of viewport
+                    if (top <= scrollTop + viewportHeight * 0.5 && top + rect.height > scrollTop) {
+                        return heading.id;
+                    }
+                }
+                return null;
+            }
+
+            function sendVisibleHeading() {
+                var current = getVisibleHeading();
+                if (current !== visibleHeading) {
+                    visibleHeading = current;
+                    window.webkit.messageHandlers.visibleHeading.postMessage(current);
+                }
+            }
+
+            // Throttled scroll handler
+            var timeout = null;
+            window.addEventListener('scroll', function() {
+                if (timeout) clearTimeout(timeout);
+                timeout = setTimeout(sendVisibleHeading, 50);
+            }, {passive: true});
+
+            // Send initial heading after a short delay
+            setTimeout(sendVisibleHeading, 100);
+        })();
+        """
+    }
+
+    class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         var parent: MarkdownWebView
         weak var webView: WKWebView?
         var pendingAnchor: String?
+        var onVisibleHeadingChange: ((String?) -> Void)?
+        private var isInitialScrollDone = false
 
         init(_ parent: MarkdownWebView) {
             self.parent = parent
+        }
+
+        func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+            if message.name == "visibleHeading", let headingId = message.body as? String? {
+                DispatchQueue.main.async { [weak self] in
+                    self?.onVisibleHeadingChange?(headingId)
+                }
+            }
         }
 
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
@@ -47,7 +112,7 @@ struct MarkdownWebView: NSViewRepresentable {
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            // Page finished loading, now scroll to anchor if any
+            isInitialScrollDone = false
             if let anchor = pendingAnchor, !anchor.isEmpty {
                 scrollToAnchor(anchor)
                 pendingAnchor = nil
@@ -65,11 +130,16 @@ struct MarkdownWebView: NSViewRepresentable {
                 return false;
             })();
             """
-            webView?.evaluateJavaScript(script) { result, error in
+            webView?.evaluateJavaScript(script) { [weak self] result, error in
                 if let error = error {
                     print("Scroll error: \(error)")
                 } else if let success = result as? Bool, !success {
                     print("Anchor not found: \(anchor)")
+                } else {
+                    // After scrolling to anchor, trigger visible heading update
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        self?.webView?.evaluateJavaScript("window.scrollTo(window.pageXOffset, window.pageYOffset);") { _, _ in }
+                    }
                 }
             }
         }

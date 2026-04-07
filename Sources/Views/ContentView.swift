@@ -34,7 +34,16 @@ struct ContentView: View {
                     } else if documentManager.markdownContent.isEmpty {
                         EmptyMarkdownView()
                     } else {
-                        MarkdownWebView(html: documentManager.renderedHTML, scrollToAnchor: selectedOutline?.anchor)
+                        MarkdownWebView(
+                            html: documentManager.renderedHTML,
+                            scrollToAnchor: selectedOutline?.anchor,
+                            onVisibleHeadingChange: { anchor in
+                                if let anchor = anchor,
+                                   let item = documentManager.outlineItems.first(where: { $0.anchor == anchor }) {
+                                    selectedOutline = item
+                                }
+                            }
+                        )
                     }
                 }
 
