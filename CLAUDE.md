@@ -13,6 +13,29 @@ xcodegen generate   # Generate Xcode project from project.yml
 open MDPreview.xcodeproj   # Open in Xcode for building/running
 ```
 
+## Version Management
+
+This project uses **Semantic Versioning (SemVer)**.
+
+### Version File
+- `VERSION` - Contains the current version in format `MAJOR.MINOR.PATCH`
+  - MAJOR: Breaking changes
+  - MINOR: New features (backward compatible)
+  - PATCH: Bug fixes
+
+### Version Update Rules
+1. **BEFORE making any changes**: Read `VERSION` file to know current version
+2. **After releasing**: Update `VERSION` and `CHANGELOG.md` with new version
+3. **GitHub Releases**: Tag format must match version: `v1.0.0`
+
+### Release Process
+1. Update `CHANGELOG.md`: Add new version entry with date
+2. Update `VERSION`: Bump version number
+3. Commit with message: `Release v1.0.0`
+4. Create Git tag: `git tag -a v1.0.0 -m "Release v1.0.0"`
+5. Push: `git push && git push --tags`
+6. GitHub Actions will automatically build and attach DMG to release
+
 ## Architecture
 
 ### App Lifecycle (AppKit)
@@ -45,3 +68,16 @@ open MDPreview.xcodeproj   # Open in Xcode for building/running
 - **Outline Parsing**: DocumentManager extracts h1-h6 headings to build an outline; clicking an outline item scrolls to that heading anchor in the WebView
 - **Settings via UserDefaults**: SettingsManager uses @Published properties synced with UserDefaults
 - **File Drag & Drop**: ContentView accepts .md/.markdown files dropped onto the empty state
+
+## Legal
+
+- **License**: GNU Affero General Public License v3.0 only
+- **Copyright**: Nas SubMaster, Copyright (C) 2025 Chris Li
+- **All source files** must include the AGPL header notice
+
+## Contributing
+
+1. Create feature branch: `git checkout -b feature/your-feature`
+2. Commit changes with clear messages
+3. Push and create Pull Request
+4. Ensure CI passes (build succeeds)

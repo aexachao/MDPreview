@@ -40,6 +40,12 @@ open MDPreview.xcodeproj
 - macOS 13.0 (Ventura) or later
 - Xcode 15.0 or later
 
+## Version
+
+Current version: `1.0.0`
+
+See [CHANGELOG.md](CHANGELOG.md) for version history.
+
 ## Architecture
 
 MDPreview uses a **hybrid AppKit/SwiftUI** architecture:
@@ -73,10 +79,27 @@ Resources/
 └── heading-renderer.js      # Custom heading anchors
 ```
 
-## Contributing
+## Development
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+### Version Management
+
+This project uses Semantic Versioning (SemVer). See `VERSION` file for current version.
+
+### CI/CD
+
+GitHub Actions automatically:
+- Builds DMG on every push to `main`
+- Creates Release artifacts on GitHub Tags
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+**GNU Affero General Public License v3.0 only**
+
+- **Project Name**: Nas SubMaster
+- **Copyright**: Copyright (C) 2025 Chris Li
+
+See [LICENSE](LICENSE) for full license text.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.

@@ -16,6 +16,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Read version
+        id: version
+        run: |
+          VERSION=$(cat VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION"
+
       - name: Verify XcodeGen
         run: which xcodegen || brew install xcodegen
 
@@ -36,15 +43,21 @@ jobs:
           APP_PATH=$(find DerivedData/Build/Products/Release -name "*.app" -type d | head -1)
           echo "Found app at: $APP_PATH"
 
-          # Create DMG
+          # Create DMG with Applications symlink
+          TEMP_DIR="/tmp/mdpreview_dmg"
+          rm -rf "$TEMP_DIR"
+          mkdir -p "$TEMP_DIR"
+          cp -R "$APP_PATH" "$TEMP_DIR/"
+          ln -sf /Applications "$TEMP_DIR/Applications"
+
           hdiutil create -size 100m \
             -fs HFS+ \
             -volname "MDPreview" \
-            -srcfolder "$APP_PATH" \
+            -srcfolder "$TEMP_DIR" \
             -format UDZO \
             "MDPreview.dmg"
 
-      - name: Upload DMG
+      - name: Upload DMG to Release
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v1
         with:
@@ -55,5 +68,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MDPreview-dmg
+          name: MDPreview-dmg-${{ steps.version.outputs.version }}
           path: MDPreview.dmg
