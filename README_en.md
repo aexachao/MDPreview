@@ -49,7 +49,7 @@ open MDPreview.xcodeproj
 
 ## Version
 
-Current version: `1.0.1`
+Current version: `1.0.2`
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.
 
