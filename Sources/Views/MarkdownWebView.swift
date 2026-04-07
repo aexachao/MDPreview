@@ -15,6 +15,9 @@ struct MarkdownWebView: NSViewRepresentable {
         webView.navigationDelegate = context.coordinator
         context.coordinator.webView = webView
 
+        // Add script message handler for scroll events
+        webView.configuration.userContentController.add(context.coordinator, name: "visibleHeading")
+
         // Inject scroll observer script
         let scrollScript = WKUserScript(
             source: scrollObserverScript,
