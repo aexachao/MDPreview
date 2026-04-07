@@ -1,72 +1,72 @@
 # MDPreview
 
-A native macOS Markdown file preview application with collapsible sidebar outline.
+一款支持折叠侧边栏目录的原生 macOS Markdown 文件预览工具。
 
-## Features
+## 功能特点
 
-- **Markdown Preview**: Open and preview `.md` and `.markdown` files with live rendering
-- **Document Outline**: Collapsible sidebar showing document headings (H1-H6)
-- **Dark/Light Mode**: Automatic switching based on system appearance
-- **Drag & Drop**: Drag markdown files directly onto the app
-- **Menu Bar App**: Optional status bar icon for quick access
-- **Launch at Login**: Option to start automatically on system boot
+- **Markdown 预览**：打开并实时渲染 `.md` 和 `.markdown` 文件
+- **文档大纲**：可折叠侧边栏显示文档标题目录（H1-H6）
+- **深色/浅色模式**：跟随系统自动切换
+- **拖放支持**：直接将 Markdown 文件拖入应用
+- **菜单栏应用**：可选的状态栏图标便于快速访问
+- **开机自启**：支持设置登录时自动启动
 
-## Screenshots
+## 截图
 
-*Coming soon*
+*待添加*
 
-## Installation
+## 安装
 
-### Pre-built DMG
+### 下载预构建版本
 
-Download the latest release from the [GitHub Releases](https://github.com/aexachao/MDPreview/releases) page.
+从 [GitHub Releases](https://github.com/aexachao/MDPreview/releases) 页面下载最新版本。
 
-> **Note**: If you see a "MDPreview.app is damaged and can't be opened" error when opening the downloaded DMG, this is a macOS Gatekeeper security warning. To resolve:
+> **注意**：如果打开 DMG 时提示"MDPreview.app 已损坏，无法打开"，这是 macOS Gatekeeper 安全机制导致的。可通过以下方式解决：
 >
-> 1. **Method 1**: Right-click (or Control-click) on the MDPreview.app and select "Open", then click "Open" in the dialog
-> 2. **Method 2**: Go to **System Settings** > **Privacy & Security** > scroll down to find "Open Anyway" option
+> 1. **方法一**：在 MDPreview.app 上**右键**（或 Control+点击），选择"打开"，然后在弹窗中点击"打开"
+> 2. **方法二**：前往**系统设置** > **隐私与安全性**，向下滚动找到"仍要打开"选项
 >
-> This warning appears because the app is signed with an ad-hoc signature (no paid Apple Developer certificate). The app is safe to use.
+> 此提示是因为应用使用了 ad-hoc 签名（无付费 Apple Developer 证书），应用本身是安全的。
 
-### Build from Source
+### 源码构建
 
 ```bash
-# Clone the repository
+# 克隆仓库
 git clone https://github.com/aexachao/MDPreview.git
 cd MDPreview
 
-# Generate Xcode project
+# 生成 Xcode 项目
 xcodegen generate
 
-# Open in Xcode and run
+# 在 Xcode 中打开并运行
 open MDPreview.xcodeproj
 ```
 
-## Requirements
+## 系统要求
 
-- macOS 13.0 (Ventura) or later
-- Xcode 15.0 or later
+- macOS 13.0 (Ventura) 或更高版本
+- Xcode 15.0 或更高版本
 
-## Version
+## 版本
 
-Current version: `1.0.1`
+当前版本：`1.0.1`
 
-See [CHANGELOG.md](CHANGELOG.md) for version history.
+历史版本请查看 [CHANGELOG.md](CHANGELOG.md)。
 
-## Architecture
+## 项目架构
 
-MDPreview uses a **hybrid AppKit/SwiftUI** architecture:
+MDPreview 采用 **混合 AppKit/SwiftUI** 架构：
 
-- **AppKit**: App lifecycle, window management, menu bar, status bar
-- **SwiftUI**: User interface components
-- **WKWebView**: Markdown rendering via `marked.js`
+- **AppKit**：应用生命周期、窗口管理、菜单栏、状态栏
+- **SwiftUI**：用户界面组件
+- **WKWebView**：通过 `marked.js` 渲染 Markdown
 
-### Project Structure
+### 项目结构
 
 ```
 Sources/
-├── main.swift              # App entry point
-├── AppDelegate.swift        # App lifecycle, menus
+├── main.swift              # 应用入口
+├── AppDelegate.swift        # 应用生命周期、菜单栏
 ├── Controllers/
 │   ├── MainWindowController.swift
 │   └── StatusBarController.swift
@@ -82,31 +82,31 @@ Sources/
 └── Renderer/
     └── MarkdownRenderer.swift
 Resources/
-├── marked.min.js           # Markdown parser
-└── heading-renderer.js      # Custom heading anchors
+├── marked.min.js           # Markdown 解析库
+└── heading-renderer.js      # 自定义标题锚点渲染
 ```
 
-## Development
+## 开发
 
-### Version Management
+### 版本管理
 
-This project uses Semantic Versioning (SemVer). See `VERSION` file for current version.
+本项目使用语义化版本号（SemVer）。当前版本见 `VERSION` 文件。
 
-### CI/CD
+### 持续集成
 
-GitHub Actions automatically:
-- Builds DMG on every push to `main`
-- Uploads DMG to Release on Git Tag
+GitHub Actions 自动执行：
+- 每次 push 到 `main` 分支时构建 DMG
+- 创建 Git Tag 时自动生成 Release 产物
 
-## License
+## 许可证
 
 **GNU Affero General Public License v3.0 only**
 
-- **Project Name**: Nas SubMaster
-- **Copyright**: Copyright (C) 2025 Chris Li
+- **项目名称**：MDPreview
+- **版权**：Copyright (C) 2025 Chris Li
 
-See [LICENSE](LICENSE) for full license text.
+详细内容见 [LICENSE](LICENSE)。
 
-## Contributing
+## 贡献
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+欢迎提交 Pull Request！
