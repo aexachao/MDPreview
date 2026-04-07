@@ -1,0 +1,59 @@
+name: Build DMG
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify XcodeGen
+        run: which xcodegen || brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build
+        run: |
+          xcodebuild -project MDPreview.xcodeproj \
+            -scheme MDPreview \
+            -configuration Release \
+            -derivedDataPath DerivedData \
+            build
+
+      - name: Create DMG
+        run: |
+          # Find built app
+          APP_PATH=$(find DerivedData/Build/Products/Release -name "*.app" -type d | head -1)
+          echo "Found app at: $APP_PATH"
+
+          # Create DMG
+          hdiutil create -size 100m \
+            -fs HFS+ \
+            -volname "MDPreview" \
+            -srcfolder "$APP_PATH" \
+            -format UDZO \
+            "MDPreview.dmg"
+
+      - name: Upload DMG
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: MDPreview.dmg
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MDPreview-dmg
+          path: MDPreview.dmg

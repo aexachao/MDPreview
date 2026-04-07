@@ -1,0 +1,28 @@
+# macOS
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Xcode
+*.xcodeproj/
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/project.xcworkspace/
+xcuserdata/
+*.moved-aside
+
+# DerivedData
+DerivedData/
+build/
+
+# Build products
+*.dmg
+*.pkg
+*.mpkg
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary files
+*.log
