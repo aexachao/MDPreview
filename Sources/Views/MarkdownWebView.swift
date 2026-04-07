@@ -57,10 +57,8 @@ struct MarkdownWebView: NSViewRepresentable {
                     var heading = headings[i];
                     var rect = heading.getBoundingClientRect();
 
-                    // Skip headings with no ID
                     if (!heading.id) continue;
 
-                    // Check if heading is in viewport (top edge is in upper half)
                     if (rect.top >= 0 && rect.top < viewportHeight * 0.6) {
                         var distance = Math.abs(rect.top);
                         if (distance < bestDistance) {
@@ -70,7 +68,6 @@ struct MarkdownWebView: NSViewRepresentable {
                     }
                 }
 
-                // If no heading found in upper half, find the first heading above viewport
                 if (!bestHeading) {
                     for (var i = 0; i < headings.length; i++) {
                         var heading = headings[i];
@@ -93,14 +90,12 @@ struct MarkdownWebView: NSViewRepresentable {
                 }
             }
 
-            // Throttled scroll handler
             var timeout = null;
             window.addEventListener('scroll', function() {
                 if (timeout) clearTimeout(timeout);
                 timeout = setTimeout(sendVisibleHeading, 50);
             }, {passive: true});
 
-            // Send initial heading after a short delay
             setTimeout(sendVisibleHeading, 200);
         })();
         """

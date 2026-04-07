@@ -2,17 +2,24 @@ import Foundation
 import Combine
 
 struct OutlineItem: Identifiable, Hashable {
-    let id = UUID()
+    let id: String  // Use anchor as id for proper comparison
     let level: Int
     let title: String
     let anchor: String
 
+    init(level: Int, title: String, anchor: String) {
+        self.id = anchor  // Use anchor as id
+        self.level = level
+        self.title = title
+        self.anchor = anchor
+    }
+
     func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
+        hasher.combine(anchor)
     }
 
     static func == (lhs: OutlineItem, rhs: OutlineItem) -> Bool {
-        lhs.id == rhs.id
+        lhs.anchor == rhs.anchor
     }
 }
 
