@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [main]
   release:
-    types: [created]
+    types: [published]
 
 jobs:
   build:
@@ -59,9 +59,11 @@ jobs:
 
       - name: Upload DMG to Release
         if: github.event_name == 'release'
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: MDPreview.dmg
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
