@@ -102,7 +102,7 @@ GitHub Actions 自动执行：
 
 **GNU Affero General Public License v3.0 only**
 
-- **项目名称**：Nas SubMaster
+- **项目名称**：MDPreview
 - **版权**：Copyright (C) 2025 Chris Li
 
 详细内容见 [LICENSE](LICENSE)。
