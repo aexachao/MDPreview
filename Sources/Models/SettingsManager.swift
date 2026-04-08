@@ -11,6 +11,21 @@ class SettingsManager: ObservableObject {
         static let launchAtLogin = "launchAtLogin"
         static let hideDockIcon = "hideDockIcon"
         static let showStatusBarIcon = "showStatusBarIcon"
+        static let locale = "locale"
+    }
+
+    enum Locale: String, CaseIterable {
+        case system = "system"
+        case english = "en"
+        case chinese = "zh"
+
+        var displayName: String {
+            switch self {
+            case .system: return "跟随系统"
+            case .english: return "English"
+            case .chinese: return "中文"
+            }
+        }
     }
 
     var onDockIconVisibilityChanged: (() -> Void)?
@@ -35,10 +50,22 @@ class SettingsManager: ObservableObject {
         }
     }
 
+    @Published var locale: Locale {
+        didSet {
+            defaults.set(locale.rawValue, forKey: Keys.locale)
+            applyLocale()
+        }
+    }
+
     private init() {
         self.launchAtLogin = defaults.bool(forKey: Keys.launchAtLogin)
         self.hideDockIcon = defaults.bool(forKey: Keys.hideDockIcon)
         self.showStatusBarIcon = defaults.object(forKey: Keys.showStatusBarIcon) as? Bool ?? true
+
+        let localeRaw = defaults.string(forKey: Keys.locale) ?? Locale.system.rawValue
+        self.locale = Locale(rawValue: localeRaw) ?? .system
+
+        applyLocale()
     }
 
     private func updateLoginItem() {
@@ -78,5 +105,18 @@ class SettingsManager: ObservableObject {
         if launchAtLogin {
             updateLoginItem()
         }
+    }
+
+    private func applyLocale() {
+        let languages: [String]
+        switch locale {
+        case .system:
+            languages = []
+        case .english:
+            languages = ["en"]
+        case .chinese:
+            languages = ["zh"]
+        }
+        defaults.set(languages, forKey: "AppleLanguages")
     }
 }

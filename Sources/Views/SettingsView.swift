@@ -7,6 +7,12 @@ struct SettingsView: View {
         VStack(spacing: 0) {
             Form {
                 Section {
+                    Picker("语言 / Language", selection: $settingsManager.locale) {
+                        ForEach(SettingsManager.Locale.allCases, id: \.self) { locale in
+                            Text(locale.displayName).tag(locale)
+                        }
+                    }
+
                     Toggle("开机自启动", isOn: $settingsManager.launchAtLogin)
                         .toggleStyle(.switch)
 
@@ -25,7 +31,7 @@ struct SettingsView: View {
 
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("版本: 1.0")
+                        Text("版本: 1.0.6")
                             .foregroundColor(.secondary)
                         Text("MDPreview - Markdown 文件预览工具")
                             .foregroundColor(.secondary)
@@ -38,7 +44,7 @@ struct SettingsView: View {
             }
             .padding(20)
         }
-        .frame(width: 400, height: 220)
+        .frame(width: 400, height: 280)
     }
 }
 
