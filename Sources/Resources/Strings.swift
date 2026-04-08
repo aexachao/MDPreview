@@ -79,6 +79,10 @@ class Strings {
 
     var fileNotFound: String { isChinese ? "文件未找到" : "File Not Found" }
     var readError: String { isChinese ? "读取文件失败" : "Failed to Read File" }
+    var emptyFile: String { isChinese ? "此文件为空" : "This file is empty." }
+    var openMarkdownHint: String { isChinese ? "打开 Markdown 文件以预览" : "Open a Markdown file to preview" }
+    var openFileButton: String { isChinese ? "打开文件" : "Open File" }
+    var dragDropHint: String { isChinese ? "或拖放 .md 文件到这里" : "Or drag and drop a .md file here" }
 
     // MARK: - Restart Alert
 

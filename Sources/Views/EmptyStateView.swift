@@ -14,20 +14,20 @@ struct EmptyStateView: View {
                     .font(.title)
                     .fontWeight(.semibold)
 
-                Text("Open a Markdown file to preview")
+                Text(Strings.shared.openMarkdownHint)
                     .font(.body)
                     .foregroundColor(.secondary)
             }
 
             Button(action: onOpenFile) {
-                Label("Open File", systemImage: "doc.text")
+                Label(Strings.shared.openFileButton, systemImage: "doc.text")
                     .font(.body)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 10)
             }
             .buttonStyle(.borderedProminent)
 
-            Text("Or drag and drop a .md file here")
+            Text(Strings.shared.dragDropHint)
                 .font(.caption)
                 .foregroundColor(.secondary)
         }

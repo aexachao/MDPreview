@@ -267,7 +267,7 @@ struct EmptyMarkdownView: View {
             Image(systemName: "doc.text")
                 .font(.system(size: 48))
                 .foregroundColor(.secondary)
-            Text("This file is empty.")
+            Text(Strings.shared.emptyFile)
                 .font(.headline)
                 .foregroundColor(.secondary)
         }
