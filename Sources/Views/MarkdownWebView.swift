@@ -30,16 +30,17 @@ struct MarkdownWebView: NSViewRepresentable {
     }
 
     func updateNSView(_ webView: WKWebView, context: Context) {
+        context.coordinator.onVisibleHeadingChange = onVisibleHeadingChange
+
         // Only reload HTML if content changed (new file loaded)
         if context.coordinator.lastHTML != html {
             context.coordinator.lastHTML = html
             context.coordinator.pendingAnchor = scrollToAnchor
-            context.coordinator.onVisibleHeadingChange = onVisibleHeadingChange
-            // Reset JS state by reloading - script will reinitialize automatically
             webView.loadHTMLString(html, baseURL: nil)
-        } else {
-            // Just update the callback reference, don't reload
-            context.coordinator.onVisibleHeadingChange = onVisibleHeadingChange
+        } else if let anchor = scrollToAnchor, anchor != context.coordinator.pendingAnchor {
+            // HTML didn't change, but scrollToAnchor did - scroll to the anchor
+            context.coordinator.pendingAnchor = anchor
+            context.coordinator.scrollToAnchor(anchor, in: webView)
         }
     }
 
@@ -163,12 +164,12 @@ struct MarkdownWebView: NSViewRepresentable {
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             isInitialScrollDone = false
             if let anchor = pendingAnchor, !anchor.isEmpty {
-                scrollToAnchor(anchor)
+                scrollToAnchor(anchor, in: webView)
                 pendingAnchor = nil
             }
         }
 
-        func scrollToAnchor(_ anchor: String) {
+        func scrollToAnchor(_ anchor: String, in webView: WKWebView) {
             let script = """
             (function() {
                 var element = document.getElementById('\(anchor)');
@@ -179,16 +180,11 @@ struct MarkdownWebView: NSViewRepresentable {
                 return false;
             })();
             """
-            webView?.evaluateJavaScript(script) { [weak self] result, error in
+            webView.evaluateJavaScript(script) { [weak self] result, error in
                 if let error = error {
                     print("Scroll error: \(error)")
                 } else if let success = result as? Bool, !success {
                     print("Anchor not found: \(anchor)")
-                } else {
-                    // After scrolling to anchor, trigger visible heading update
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        self?.webView?.evaluateJavaScript("window.scrollTo(window.pageXOffset, window.pageYOffset);") { _, _ in }
-                    }
                 }
             }
         }
