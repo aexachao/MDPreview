@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.6] - 2026-04-08
+
+### Fixed
+- Fix duplicate heading anchor handling (静态图-1, 选图-2, etc.)
+- Fix sidebar toggle affecting all windows simultaneously
+- Optimize scroll sync with 16ms throttle for smoother updates
+
+### Improved
+- Add proper AppIcon sizes for macOS
+
 ## [1.0.5] - 2026-04-08
 
 ### Improved
