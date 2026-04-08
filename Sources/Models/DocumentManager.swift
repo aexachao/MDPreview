@@ -31,6 +31,7 @@ class DocumentManager: ObservableObject {
     @Published var errorMessage: String?
     @Published var outlineItems: [OutlineItem] = []
     @Published var selectedOutlineItem: OutlineItem?
+    @Published var pendingScrollToAnchor: String?
 
     private let renderer = MarkdownRenderer()
 

@@ -10,14 +10,21 @@ struct ContentView: View {
         self.documentManager = documentManager
         self.windowId = windowId
     }
-    @State private var selectedOutline: OutlineItem?
 
     var body: some View {
         HStack(spacing: 0) {
             // Sidebar
             SidebarView(
                 documentManager: documentManager,
-                selectedOutline: $selectedOutline
+                selectedOutline: Binding(
+                    get: { documentManager.selectedOutlineItem },
+                    set: { newValue in
+                        documentManager.selectedOutlineItem = newValue
+                        if let item = newValue {
+                            documentManager.pendingScrollToAnchor = item.anchor
+                        }
+                    }
+                )
             )
             .frame(width: sidebarVisible ? 250 : 0, height: nil)
             .clipped()
@@ -42,14 +49,17 @@ struct ContentView: View {
                     } else {
                         MarkdownWebView(
                             html: documentManager.renderedHTML,
-                            scrollToAnchor: selectedOutline?.anchor,
-                            onVisibleHeadingChange: { [weak documentManager] anchor in
-                                guard let dm = documentManager,
-                                      let anchor = anchor,
-                                      let item = dm.outlineItems.first(where: { $0.anchor == anchor }) else { return }
-                                // Only update if different to avoid infinite loop
-                                if selectedOutline?.anchor != item.anchor {
-                                    selectedOutline = item
+                            scrollToAnchor: documentManager.pendingScrollToAnchor,
+                            onVisibleHeadingChange: { [documentManager] anchor in
+                                guard let anchor = anchor,
+                                      let item = documentManager.outlineItems.first(where: { $0.anchor == anchor }) else { return }
+                                // If we scrolled to the pending anchor, clear it
+                                if documentManager.pendingScrollToAnchor == anchor {
+                                    documentManager.pendingScrollToAnchor = nil
+                                }
+                                // Only update selectedOutlineItem from natural scroll if no pending sidebar scroll
+                                if documentManager.pendingScrollToAnchor == nil {
+                                    documentManager.selectedOutlineItem = item
                                 }
                             }
                         )
@@ -151,6 +161,7 @@ struct SidebarView: View {
                                 .contentShape(Rectangle())
                                 .onTapGesture {
                                     selectedOutline = item
+                                    documentManager.pendingScrollToAnchor = item.anchor
                                 }
                         }
                     }

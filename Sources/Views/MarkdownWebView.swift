@@ -38,7 +38,7 @@ struct MarkdownWebView: NSViewRepresentable {
             context.coordinator.pendingAnchor = scrollToAnchor
             webView.loadHTMLString(html, baseURL: nil)
         } else if let anchor = scrollToAnchor, anchor != context.coordinator.pendingAnchor {
-            // HTML didn't change, but scrollToAnchor did - scroll to the anchor
+            // HTML didn't change, but scrollToAnchor did (user clicked sidebar) - scroll to the anchor
             context.coordinator.pendingAnchor = anchor
             context.coordinator.scrollToAnchor(anchor, in: webView)
         }
@@ -66,6 +66,7 @@ struct MarkdownWebView: NSViewRepresentable {
                 if (headings.length === 0) return null;
 
                 var viewportHeight = window.innerHeight;
+                var topThreshold = viewportHeight * 0.35; // Top 35% of viewport
                 var bestHeading = null;
                 var bestTop = Infinity;
 
@@ -74,8 +75,8 @@ struct MarkdownWebView: NSViewRepresentable {
                     if (!heading.id) continue;
 
                     var rect = heading.getBoundingClientRect();
-                    // Heading is in or near viewport
-                    if (rect.top >= -200 && rect.top <= viewportHeight) {
+                    // Heading must be in top portion of viewport (0 to 35% from top)
+                    if (rect.top >= 0 && rect.top <= topThreshold) {
                         var score = Math.abs(rect.top);
                         if (score < bestTop) {
                             bestTop = score;
