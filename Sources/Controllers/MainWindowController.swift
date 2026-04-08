@@ -80,7 +80,7 @@ extension MainWindowController: NSToolbarDelegate {
             item.label = s.outline
             item.paletteLabel = s.toggleOutline
             item.toolTip = s.toggleOutline
-            let config = NSImage.SymbolConfiguration(pointSize: 12, weight: .regular)
+            let config = NSImage.SymbolConfiguration(pointSize: 24, weight: .regular)
             item.image = NSImage(systemSymbolName: "sidebar.left", accessibilityDescription: s.outline)?.withSymbolConfiguration(config)
             item.target = self
             item.action = #selector(toggleSidebar(_:))
@@ -100,7 +100,7 @@ extension MainWindowController: NSToolbarDelegate {
             item.label = s.settings
             item.paletteLabel = s.settings
             item.toolTip = s.settings
-            let config = NSImage.SymbolConfiguration(pointSize: 12, weight: .regular)
+            let config = NSImage.SymbolConfiguration(pointSize: 24, weight: .regular)
             item.image = NSImage(systemSymbolName: "gear", accessibilityDescription: s.settings)?.withSymbolConfiguration(config)
             item.target = self
             item.action = #selector(showSettingsAction(_:))
@@ -111,7 +111,7 @@ extension MainWindowController: NSToolbarDelegate {
             item.label = s.open
             item.paletteLabel = s.open
             item.toolTip = s.open
-            let config = NSImage.SymbolConfiguration(pointSize: 12, weight: .regular)
+            let config = NSImage.SymbolConfiguration(pointSize: 24, weight: .regular)
             item.image = NSImage(systemSymbolName: "doc.badge.plus", accessibilityDescription: s.open)?.withSymbolConfiguration(config)
             item.target = self
             item.action = #selector(openFileAction(_:))
