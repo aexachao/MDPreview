@@ -7,16 +7,21 @@ class Strings {
     private init() {}
 
     private var isChinese: Bool {
-        // Direct access to UserDefaults to avoid timing issues with SettingsManager initialization
         let defaults = UserDefaults.standard
         let localeRaw = defaults.string(forKey: "locale") ?? "system"
+
         switch localeRaw {
         case "zh":
             return true
         case "en":
             return false
         default: // system
-            return Locale.preferredLanguages.first?.hasPrefix("zh") == true
+            // Use fixed detection based on user's actual macOS system language
+            // Check if user has Chinese main language in system preferences
+            let systemLocale = Locale.current
+            let languageCode = systemLocale.language.languageCode?.identifier ?? "en"
+            // For Chinese variants (zh, zh-Hans, zh-Hant), consider as Chinese
+            return languageCode == "zh"
         }
     }
 
