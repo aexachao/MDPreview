@@ -27,6 +27,8 @@ targets:
       - path: Resources
         excludes:
           - "**/.DS_Store"
+      - path: Resources/VERSION
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.mdpreview.app
@@ -37,3 +39,7 @@ targets:
         COMBINE_HIDPI_IMAGES: YES
     entitlements:
       path: MDPreview.entitlements
+    preBuildScripts:
+      - name: Copy VERSION
+        script: |
+          cp "${PROJECT_DIR}/VERSION" "${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources/VERSION"

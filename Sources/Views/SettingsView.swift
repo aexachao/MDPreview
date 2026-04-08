@@ -73,7 +73,13 @@ struct SettingsView: View {
     }
 
     private var appVersion: String {
-        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        // Read version from VERSION file in bundle
+        guard let versionFile = Bundle.main.url(forResource: "VERSION", withExtension: nil),
+              let version = try? String(contentsOf: versionFile, encoding: .utf8) else {
+            // Fallback to Info.plist if VERSION file not found
+            return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        }
+        return version.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 
