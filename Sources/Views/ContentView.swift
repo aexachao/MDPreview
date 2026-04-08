@@ -37,13 +37,17 @@ struct ContentView: View {
                         MarkdownWebView(
                             html: documentManager.renderedHTML,
                             scrollToAnchor: selectedOutline?.anchor,
-                            onVisibleHeadingChange: { anchor in
-                                if let anchor = anchor,
-                                   let item = documentManager.outlineItems.first(where: { $0.anchor == anchor }) {
+                            onVisibleHeadingChange: { [weak documentManager] anchor in
+                                guard let dm = documentManager,
+                                      let anchor = anchor,
+                                      let item = dm.outlineItems.first(where: { $0.anchor == anchor }) else { return }
+                                // Only update if different to avoid infinite loop
+                                if selectedOutline?.anchor != item.anchor {
                                     selectedOutline = item
                                 }
                             }
                         )
+                        .id(documentManager.currentFileURL?.absoluteString ?? "")
                     }
                 }
 
