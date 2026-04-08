@@ -65,21 +65,17 @@ struct SettingsView: View {
     }
 
     private func restartApp() {
-        // Get the .app bundle URL
-        guard let bundleURL = Bundle.main.bundleURL as URL? else { return }
-
-        // Relaunch using NSWorkspace
-        let configuration = NSWorkspace.OpenConfiguration()
-        configuration.activates = true
-
-        NSWorkspace.shared.openApplication(at: bundleURL, configuration: configuration) { _, error in
-            if let error = error {
-                print("Failed to launch app: \(error)")
-            }
-        }
-
-        // Terminate current instance
+        // First terminate current instance, then launch new one
         NSApp.terminate(nil)
+
+        // This code won't run if terminate succeeds immediately
+        // But put it here as safety net
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            let task = Process()
+            task.launchPath = "/bin/sh"
+            task.arguments = ["-c", "open -n '\(Bundle.main.bundlePath)' && kill \(getpid())"]
+            task.launch()
+        }
     }
 }
 
