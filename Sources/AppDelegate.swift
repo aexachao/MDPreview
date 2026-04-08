@@ -166,6 +166,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func setupStatusBar() {
         statusBarController = StatusBarController()
 
+        statusBarController?.onShowWindow = { [weak self] in
+            self?.mainWindowController?.showWindow(nil)
+            NSApp.activate(ignoringOtherApps: true)
+        }
+
         statusBarController?.onOpenFile = { [weak self] in
             self?.openDocument(nil)
         }

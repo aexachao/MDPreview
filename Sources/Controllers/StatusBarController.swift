@@ -5,6 +5,7 @@ class StatusBarController {
     private var statusItem: NSStatusItem?
     private let settingsManager = SettingsManager.shared
 
+    var onShowWindow: (() -> Void)?
     var onOpenFile: (() -> Void)?
     var onNewWindow: (() -> Void)?
     var onShowSettings: (() -> Void)?
@@ -30,6 +31,13 @@ class StatusBarController {
     private func createMenu() -> NSMenu {
         let s = Strings.shared
         let menu = NSMenu()
+
+        let showItem = NSMenuItem(title: s.show, action: #selector(showWindowAction), keyEquivalent: "")
+        showItem.image = NSImage(systemSymbolName: "macwindow", accessibilityDescription: nil)
+        showItem.target = self
+        menu.addItem(showItem)
+
+        menu.addItem(NSMenuItem.separator())
 
         let openItem = NSMenuItem(title: s.open, action: #selector(openFileAction), keyEquivalent: "o")
         openItem.image = NSImage(systemSymbolName: "doc.text", accessibilityDescription: nil)
@@ -78,6 +86,10 @@ class StatusBarController {
             NSStatusBar.system.removeStatusItem(item)
             statusItem = nil
         }
+    }
+
+    @objc private func showWindowAction() {
+        onShowWindow?()
     }
 
     @objc private func openFileAction() {
