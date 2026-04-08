@@ -19,7 +19,8 @@ struct TitleBarView: View {
             // Sidebar toggle
             Button(action: { withAnimation { sidebarVisible.toggle() } }) {
                 Image(systemName: sidebarVisible ? "sidebar.left.fill" : "sidebar.left")
-                    .font(.system(size: 12))
+                    .resizable()
+                    .frame(width: 14, height: 14)
                     .foregroundColor(.secondary)
             }
             .buttonStyle(.borderless)
@@ -31,7 +32,8 @@ struct TitleBarView: View {
             HStack(spacing: 8) {
                 Button(action: onShowSettings) {
                     Image(systemName: "gear")
-                        .font(.system(size: 12))
+                        .resizable()
+                        .frame(width: 14, height: 14)
                         .foregroundColor(.secondary)
                 }
                 .buttonStyle(.borderless)
@@ -39,7 +41,8 @@ struct TitleBarView: View {
 
                 Button(action: onOpenFile) {
                     Image(systemName: "doc.badge.plus")
-                        .font(.system(size: 12))
+                        .resizable()
+                        .frame(width: 14, height: 14)
                         .foregroundColor(.secondary)
                 }
                 .buttonStyle(.borderless)
