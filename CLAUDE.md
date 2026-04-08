@@ -34,7 +34,13 @@ This project uses **Semantic Versioning (SemVer)**.
 3. Commit with message: `Release v1.0.0`
 4. Create Git tag: `git tag -a v1.0.0 -m "Release v1.0.0"`
 5. Push: `git push && git push --tags`
-6. GitHub Actions will automatically build and attach DMG to release
+6. GitHub Actions will automatically:
+   - Build DMG
+   - Create GitHub Release with DMG attached
+   - **Include changelog content as release notes**
+
+### GitHub Release Notes
+Release notes are automatically generated from `CHANGELOG.md`. The workflow extracts the latest version section and uses it as the release body.
 
 ## Architecture
 

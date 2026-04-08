@@ -64,14 +64,29 @@ jobs:
 
           ls -la MDPreview.dmg
 
+      - name: Extract changelog for release notes
+        id: changelog
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          # Extract changelog section for this version
+          VERSION=$(cat VERSION)
+          # Get content between version header and next version header (or end)
+          CHANGELOG=$(awk "/## \[${VERSION}\]/,/## \[/" CHANGELOG.md | head -n -1 | tail -n +2)
+          # Remove markdown headers but keep content
+          NOTES=$(echo "$CHANGELOG" | sed 's/^### /**/;s/$/**/' | tr '\n' ' ' | sed 's/\*\*  \*\*/\n\n/g')
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Upload DMG to Release
         if: startsWith(github.ref, 'refs/tags/')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG_NAME="${GITHUB_REF#refs/tags/}"
-          # Create release if it doesn't exist, then upload DMG
-          gh release create "$TAG_NAME" --title "MDPreview $TAG_NAME" --notes "Release $TAG_NAME" MDPreview.dmg || gh release upload "$TAG_NAME" MDPreview.dmg --clobber
+          NOTES="${{ steps.changelog.outputs.notes }}"
+          # Create release with changelog notes, then upload DMG
+          gh release create "$TAG_NAME" --title "MDPreview $TAG_NAME" --notes "$NOTES" MDPreview.dmg || gh release upload "$TAG_NAME" MDPreview.dmg --clobber
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
