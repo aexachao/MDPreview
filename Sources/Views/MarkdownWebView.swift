@@ -54,6 +54,40 @@ struct MarkdownWebView: NSViewRepresentable {
             var lastScrollY = 0;
             var isInitialized = false;
 
+            // Get all heading elements and calculate content bottom for each
+            function buildHeadingMap() {
+                var headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                var map = [];
+
+                for (var i = 0; i < headings.length; i++) {
+                    var heading = headings[i];
+                    if (!heading.id) continue;
+
+                    var rect = heading.getBoundingClientRect();
+                    var headingTop = rect.top;
+
+                    // Content bottom is either the next heading's top, or document bottom
+                    var contentBottom;
+                    if (i < headings.length - 1) {
+                        var nextHeading = headings[i + 1];
+                        var nextRect = nextHeading.getBoundingClientRect();
+                        contentBottom = nextRect.top;
+                    } else {
+                        // Last heading: content goes to document end
+                        contentBottom = document.body.scrollHeight;
+                    }
+
+                    map.push({
+                        id: heading.id,
+                        headingTop: headingTop,
+                        contentBottom: contentBottom,
+                        level: heading.tagName
+                    });
+                }
+
+                return map;
+            }
+
             function getVisibleHeading() {
                 var headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
                 if (headings.length === 0) return null;
@@ -63,52 +97,50 @@ struct MarkdownWebView: NSViewRepresentable {
                 lastScrollY = scrollY;
 
                 var viewportHeight = window.innerHeight;
+                var map = buildHeadingMap();
 
-                // Find heading closest to viewport edge based on scroll direction
-                var bestHeading = null;
-                var bestScore = Infinity;
-
-                for (var i = 0; i < headings.length; i++) {
-                    var heading = headings[i];
-                    if (!heading.id) continue;
-
-                    var rect = heading.getBoundingClientRect();
-                    var absTop = Math.abs(rect.top);
-
-                    // Scrolling DOWN: prefer heading that has just entered at top
-                    // (rect.top is small and positive, meaning just below viewport top)
-                    if (isScrollingDown) {
-                        // Heading's top is at or just below viewport top (0 to viewportHeight)
-                        if (rect.top >= 0 && rect.top <= viewportHeight) {
-                            var score = rect.top;
-                            if (score < bestScore) {
-                                bestScore = score;
-                                bestHeading = heading.id;
+                // Scrolling DOWN: current heading's content bottom reaches viewport top
+                // -> switch to NEXT heading
+                if (isScrollingDown) {
+                    for (var i = 0; i < map.length - 1; i++) {
+                        var current = map[i];
+                        var next = map[i + 1];
+                        // Current heading's content bottom is at or above viewport top
+                        // (content has scrolled past)
+                        if (current.contentBottom <= viewportHeight) {
+                            // Check if next heading is coming into view
+                            if (next.headingTop <= viewportHeight) {
+                                return next.id;
                             }
                         }
                     }
-                    // Scrolling UP: prefer heading that has just entered at top from below
-                    else {
-                        // Heading's top is at or just above viewport top (negative to viewportHeight)
-                        if (rect.top <= 0 && rect.top >= -viewportHeight) {
-                            var score = Math.abs(rect.top);
-                            if (score < bestScore) {
-                                bestScore = score;
-                                bestHeading = heading.id;
+                }
+                // Scrolling UP: previous heading's content bottom appears at viewport top
+                // -> switch to PREVIOUS heading
+                else {
+                    for (var i = 1; i < map.length; i++) {
+                        var prev = map[i - 1];
+                        var current = map[i];
+                        // Current heading is at or near top
+                        if (current.headingTop <= 50) {
+                            // Previous heading's content bottom is at viewport top
+                            // (content is becoming visible)
+                            if (prev.contentBottom > 0 && prev.contentBottom <= viewportHeight) {
+                                return prev.id;
                             }
                         }
                     }
                 }
 
-                // Fallback: if no heading found in scroll direction, find any heading at top
-                if (!bestHeading) {
-                    for (var i = 0; i < headings.length; i++) {
-                        var heading = headings[i];
-                        if (!heading.id) continue;
-                        var rect = heading.getBoundingClientRect();
-                        if (rect.top >= -100 && rect.top <= 100) {
-                            return heading.id;
-                        }
+                // Fallback: find heading closest to viewport top
+                var bestHeading = null;
+                var bestDist = Infinity;
+                for (var i = 0; i < map.length; i++) {
+                    var item = map[i];
+                    var dist = Math.abs(item.headingTop);
+                    if (item.headingTop >= -100 && item.headingTop <= viewportHeight && dist < bestDist) {
+                        bestDist = dist;
+                        bestHeading = item.id;
                     }
                 }
 
@@ -129,7 +161,7 @@ struct MarkdownWebView: NSViewRepresentable {
             var scrollTimeout = null;
             window.addEventListener('scroll', function() {
                 if (scrollTimeout) clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(sendHeading, 50);
+                scrollTimeout = setTimeout(sendHeading, 30);
             }, {passive: true});
 
             // Initialize
