@@ -13,7 +13,7 @@
 
 ## 截图
 
-*待添加*
+![MDPreview 界面截图](Resources/Screenshots/demo.png)
 
 ## 安装
 
@@ -49,7 +49,7 @@ open MDPreview.xcodeproj
 
 ## 版本
 
-当前版本：`1.0.5`
+当前版本：`1.0.6`
 
 历史版本请查看 [CHANGELOG.md](CHANGELOG.md)。
 
