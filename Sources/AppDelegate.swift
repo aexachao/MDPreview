@@ -121,7 +121,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         fileMenuItem.submenu = fileMenu
 
         let openItem = NSMenuItem(title: s.open, action: #selector(openDocument(_:)), keyEquivalent: "o")
-        openItem.image = NSImage(systemSymbolName: "doc.text", accessibilityDescription: nil)
+        openItem.image = NSImage(systemSymbolName: "doc.badge.plus", accessibilityDescription: nil)
         fileMenu.addItem(openItem)
 
         let newWindowItem = NSMenuItem(title: s.newWindow, action: #selector(newWindow(_:)), keyEquivalent: "n")

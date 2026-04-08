@@ -30,6 +30,7 @@ class Strings {
     var appName: String { isChinese ? "MDPreview" : "MDPreview" }
     var quitApp: String { isChinese ? "退出 MDPreview" : "Quit MDPreview" }
     var aboutApp: String { isChinese ? "关于 MDPreview" : "About MDPreview" }
+    var showMainWindow: String { isChinese ? "显示主界面" : "Show Main Window" }
     var show: String { isChinese ? "显示" : "Show" }
 
     // MARK: - Menu

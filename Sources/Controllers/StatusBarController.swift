@@ -32,7 +32,7 @@ class StatusBarController {
         let s = Strings.shared
         let menu = NSMenu()
 
-        let showItem = NSMenuItem(title: s.show, action: #selector(showWindowAction), keyEquivalent: "")
+        let showItem = NSMenuItem(title: s.showMainWindow, action: #selector(showWindowAction), keyEquivalent: "")
         showItem.image = NSImage(systemSymbolName: "macwindow", accessibilityDescription: nil)
         showItem.target = self
         menu.addItem(showItem)
@@ -40,12 +40,12 @@ class StatusBarController {
         menu.addItem(NSMenuItem.separator())
 
         let openItem = NSMenuItem(title: s.open, action: #selector(openFileAction), keyEquivalent: "o")
-        openItem.image = NSImage(systemSymbolName: "doc.text", accessibilityDescription: nil)
+        openItem.image = NSImage(systemSymbolName: "doc.badge.plus", accessibilityDescription: nil)
         openItem.target = self
         menu.addItem(openItem)
 
         let newWindowItem = NSMenuItem(title: s.newWindow, action: #selector(newWindowAction), keyEquivalent: "n")
-        newWindowItem.image = NSImage(systemSymbolName: "macwindow", accessibilityDescription: nil)
+        newWindowItem.image = NSImage(systemSymbolName: "macwindow.badge.plus", accessibilityDescription: nil)
         newWindowItem.target = self
         menu.addItem(newWindowItem)
 
