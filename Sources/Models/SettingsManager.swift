@@ -77,8 +77,8 @@ class SettingsManager: ObservableObject {
     }
 
     func applyInitialSettings() {
-        // Always start in regular mode so window can be displayed
-        NSApp.setActivationPolicy(.regular)
+        // Use accessory mode since app runs without Dock icon (LSUIElement)
+        NSApp.setActivationPolicy(.accessory)
         if launchAtLogin {
             updateLoginItem()
         }
