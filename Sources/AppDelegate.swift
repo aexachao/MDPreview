@@ -204,7 +204,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc func showSettings(_ sender: Any?) {
-        // Always create a new settings window to avoid window restoration caching
+        // Check if we already have a settings window
+        if let existingWindow = settingsWindowController {
+            existingWindow.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            return
+        }
+
+        // Create a new settings window
         let settingsWindow = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 400, height: 280),
             styleMask: [.titled, .closable],
@@ -214,7 +221,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         settingsWindow.title = Strings.shared.settings
         settingsWindow.center()
         settingsWindow.contentView = NSHostingView(rootView: SettingsView())
-        settingsWindow.isReleasedWhenClosed = true
         settingsWindow.delegate = self
         settingsWindowController = settingsWindow
         settingsWindowController?.makeKeyAndOrderFront(nil)

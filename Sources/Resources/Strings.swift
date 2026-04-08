@@ -16,11 +16,13 @@ class Strings {
         case "en":
             return false
         default: // system
-            // Use fixed detection based on user's actual macOS system language
-            // Check if user has Chinese main language in system preferences
-            let systemLocale = Locale.current
-            let languageCode = systemLocale.language.languageCode?.identifier ?? "en"
-            // For Chinese variants (zh, zh-Hans, zh-Hant), consider as Chinese
+            // Use preferredLanguages which directly reflects user's system language settings
+            guard let preferredLanguage = Locale.preferredLanguages.first else {
+                return false
+            }
+            // Check if Chinese (zh) is the primary language
+            // This handles zh, zh-Hans, zh-Hant, zh-CN, zh-TW, etc.
+            let languageCode = preferredLanguage.components(separatedBy: "-").first ?? preferredLanguage
             return languageCode == "zh"
         }
     }
