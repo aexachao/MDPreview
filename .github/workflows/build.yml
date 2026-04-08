@@ -55,14 +55,17 @@ jobs:
           cp -R "$APP_PATH" "$TEMP_DIR/"
           ln -sf /Applications "$TEMP_DIR/Applications"
 
+          # Rename DMG to include version
+          DMG_NAME="MDPreview_${VERSION}.dmg"
+
           hdiutil create -size 100m \
             -fs HFS+ \
             -volname "MDPreview" \
             -srcfolder "$TEMP_DIR" \
             -format UDZO \
-            "MDPreview.dmg"
+            "$DMG_NAME"
 
-          ls -la MDPreview.dmg
+          ls -la "$DMG_NAME"
 
       - name: Extract changelog for release notes
         id: changelog
@@ -86,11 +89,12 @@ jobs:
         run: |
           TAG_NAME="${GITHUB_REF#refs/tags/}"
           NOTES="${{ steps.changelog.outputs.notes }}"
+          DMG_NAME="MDPreview_${VERSION}.dmg"
           # Create release with changelog notes, then upload DMG
-          gh release create "$TAG_NAME" --title "MDPreview $TAG_NAME" --notes "$NOTES" MDPreview.dmg || gh release upload "$TAG_NAME" MDPreview.dmg --clobber
+          gh release create "$TAG_NAME" --title "MDPreview $TAG_NAME" --notes "$NOTES" "$DMG_NAME" || gh release upload "$TAG_NAME" "$DMG_NAME" --clobber
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: MDPreview-dmg-${{ steps.version.outputs.version }}
-          path: MDPreview.dmg
+          path: MDPreview_${{ steps.version.outputs.version }}.dmg
