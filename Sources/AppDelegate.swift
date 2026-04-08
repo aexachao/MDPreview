@@ -213,6 +213,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         settingsWindow.title = Strings.shared.settings
         settingsWindow.center()
         settingsWindow.contentView = NSHostingView(rootView: SettingsView())
+        settingsWindow.isReleasedWhenClosed = false
         settingsWindow.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
