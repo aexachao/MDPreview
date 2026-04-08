@@ -7,6 +7,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsWindowController: NSWindow?
     private let settingsManager = SettingsManager.shared
 
+    // Store files to open when app is ready (openFiles called before didFinishLaunching)
+    private var pendingFilesToOpen: [URL] = []
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         setupMenuBar()
         setupStatusBar()
@@ -14,6 +17,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         mainWindowController = MainWindowController()
         mainWindowController?.showWindow(nil)
+
+        // Process any files that were passed before launch
+        if !pendingFilesToOpen.isEmpty {
+            for url in pendingFilesToOpen {
+                mainWindowController?.openFile(at: url)
+            }
+            pendingFilesToOpen.removeAll()
+        }
 
         // Ensure app is activated and window is key
         DispatchQueue.main.async {
@@ -32,14 +43,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func application(_ sender: NSApplication, openFiles filenames: [String]) {
         let urls = filenames.map { URL(fileURLWithPath: $0) }
-        for url in urls {
-            if url.pathExtension.lowercased() == "md" || url.pathExtension.lowercased() == "markdown" {
-                if mainWindowController == nil {
-                    mainWindowController = MainWindowController()
-                }
+        let mdFiles = urls.filter {
+            $0.pathExtension.lowercased() == "md" || $0.pathExtension.lowercased() == "markdown"
+        }
+
+        if mainWindowController != nil {
+            // App is already initialized, open files directly
+            for url in mdFiles {
                 mainWindowController?.openFile(at: url)
-                mainWindowController?.showWindow(nil)
             }
+        } else {
+            // App not yet initialized, store files to process later
+            pendingFilesToOpen.append(contentsOf: mdFiles)
         }
         NSApp.reply(toOpenOrPrint: .success)
     }
