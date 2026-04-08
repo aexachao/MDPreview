@@ -65,15 +65,18 @@ struct SettingsView: View {
     }
 
     private func restartApp() {
-        // Get the .app bundle path, not the executable path
-        guard let bundlePath = Bundle.main.bundlePath as String? else { return }
-        let appPath = bundlePath.hasSuffix(".app") ? bundlePath : "\(bundlePath)/../.."
+        // Get the .app bundle URL
+        guard let bundleURL = Bundle.main.bundleURL as URL? else { return }
 
-        // Relaunch using open command
-        let task = Process()
-        task.launchPath = "/usr/bin/open"
-        task.arguments = ["-n", appPath]
-        task.launch()
+        // Relaunch using NSWorkspace
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.activates = true
+
+        NSWorkspace.shared.openApplication(at: bundleURL, configuration: configuration) { _, error in
+            if let error = error {
+                print("Failed to launch app: \(error)")
+            }
+        }
 
         // Terminate current instance
         NSApp.terminate(nil)
