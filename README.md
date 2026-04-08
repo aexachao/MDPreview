@@ -50,7 +50,7 @@ open MDPreview.xcodeproj
 
 ## 版本
 
-当前版本：`1.1.1`
+当前版本：`1.0.10`
 
 历史版本请查看 [CHANGELOG.md](CHANGELOG.md)。
 
