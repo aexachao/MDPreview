@@ -7,13 +7,16 @@ class Strings {
     private init() {}
 
     private var isChinese: Bool {
-        switch SettingsManager.shared.locale {
-        case .system:
-            return Locale.preferredLanguages.first?.hasPrefix("zh") == true
-        case .english:
-            return false
-        case .chinese:
+        // Direct access to UserDefaults to avoid timing issues with SettingsManager initialization
+        let defaults = UserDefaults.standard
+        let localeRaw = defaults.string(forKey: "locale") ?? "system"
+        switch localeRaw {
+        case "zh":
             return true
+        case "en":
+            return false
+        default: // system
+            return Locale.preferredLanguages.first?.hasPrefix("zh") == true
         }
     }
 
@@ -80,7 +83,7 @@ class Strings {
     // MARK: - Restart Alert
 
     var languageChangedTitle: String { isChinese ? "语言已更改" : "Language Changed" }
-    var languageChangedMessage: String { isChinese ? "语言更改需要重启应用才能生效。是否立即重启？" : "Language changes require restarting the app to take effect. Restart now?" }
-    var restartNow: String { isChinese ? "立即重启" : "Restart Now" }
-    var restartLater: String { isChinese ? "稍后" : "Later" }
+    var languageChangedMessage: String { isChinese ? "语言更改需要重启应用才能生效。请手动关闭并重新打开应用。" : "Language changes require restarting the app to take effect. Please manually close and reopen the app." }
+    var restartHint: String { isChinese ? "语言更改将在重启应用后生效" : "Language changes will take effect after restarting the app" }
+    var ok: String { isChinese ? "确定" : "OK" }
 }

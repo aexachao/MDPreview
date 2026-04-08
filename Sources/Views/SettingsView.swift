@@ -31,6 +31,10 @@ struct SettingsView: View {
                         .onChange(of: settingsManager.showStatusBarIcon) { newValue in
                             NotificationCenter.default.post(name: .statusBarVisibilityChanged, object: newValue)
                         }
+
+                    Text(Strings.shared.restartHint)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 } header: {
                     Text(Strings.shared.generalSettings)
                         .font(.headline)
@@ -51,30 +55,16 @@ struct SettingsView: View {
             }
             .padding(20)
         }
-        .frame(width: 400, height: 280)
+        .frame(width: 400, height: 320)
         .alert(isPresented: $showRestartAlert) {
             Alert(
                 title: Text(Strings.shared.languageChangedTitle),
                 message: Text(Strings.shared.languageChangedMessage),
-                primaryButton: .default(Text(Strings.shared.restartNow)) {
-                    restartApp()
+                primaryButton: .default(Text(Strings.shared.ok)) {
+                    // Just close alert, user will restart manually
                 },
-                secondaryButton: .cancel(Text(Strings.shared.restartLater))
+                secondaryButton: .cancel()
             )
-        }
-    }
-
-    private func restartApp() {
-        // First terminate current instance, then launch new one
-        NSApp.terminate(nil)
-
-        // This code won't run if terminate succeeds immediately
-        // But put it here as safety net
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            let task = Process()
-            task.launchPath = "/bin/sh"
-            task.arguments = ["-c", "open -n '\(Bundle.main.bundlePath)' && kill \(getpid())"]
-            task.launch()
         }
     }
 }
