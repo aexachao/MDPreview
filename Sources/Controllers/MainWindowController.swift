@@ -17,7 +17,7 @@ class MainWindowController: NSWindowController {
         window.titleVisibility = .hidden
         window.center()
         window.minSize = NSSize(width: 600, height: 400)
-        window.setFrameAutosaveName("MainWindow")
+        window.setFrameAutosaveName("MainWindow-\(UUID().uuidString)")
 
         self.init(window: window)
 
@@ -26,7 +26,7 @@ class MainWindowController: NSWindowController {
     }
 
     private func setupContentView() {
-        contentView = ContentView(documentManager: documentManager)
+        contentView = ContentView(documentManager: documentManager, windowId: window?.hashValue ?? 0)
         let hostingView = NSHostingView(rootView: contentView!)
         window?.contentView = hostingView
     }
@@ -135,7 +135,7 @@ extension MainWindowController: NSToolbarDelegate {
     }
 
     @objc func toggleSidebar(_ sender: Any?) {
-        NotificationCenter.default.post(name: .toggleSidebar, object: nil)
+        NotificationCenter.default.post(name: .toggleSidebar, object: window?.hashValue)
     }
 
     @objc func showSettingsAction(_ sender: Any?) {

@@ -4,6 +4,12 @@ import AppKit
 struct ContentView: View {
     @ObservedObject var documentManager: DocumentManager
     @State private var sidebarVisible = false
+    let windowId: Int
+
+    init(documentManager: DocumentManager, windowId: Int = 0) {
+        self.documentManager = documentManager
+        self.windowId = windowId
+    }
     @State private var selectedOutline: OutlineItem?
 
     var body: some View {
@@ -79,8 +85,11 @@ struct ContentView: View {
             forName: .toggleSidebar,
             object: nil,
             queue: .main
-        ) { _ in
-            sidebarVisible.toggle()
+        ) { [self] notification in
+            // Only toggle if this notification is for our window
+            if let notificationWindowId = notification.object as? Int, notificationWindowId == windowId {
+                sidebarVisible.toggle()
+            }
         }
     }
 

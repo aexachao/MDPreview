@@ -51,8 +51,6 @@ struct MarkdownWebView: NSViewRepresentable {
     private var scrollObserverScript: String {
         """
         (function() {
-            console.log('[ScrollObserver] Script initializing...');
-
             var lastSentHeading = null;
             var lastScrollY = 0;
             var isInitialized = false;
@@ -89,7 +87,6 @@ struct MarkdownWebView: NSViewRepresentable {
             }
 
             function sendHeading(heading) {
-                console.log('[ScrollObserver] sendHeading:', heading, 'lastSent:', lastSentHeading);
                 if (heading && heading !== lastSentHeading) {
                     lastSentHeading = heading;
                     window.webkit.messageHandlers.visibleHeading.postMessage(heading);
@@ -104,28 +101,23 @@ struct MarkdownWebView: NSViewRepresentable {
                 lastScrollY = scrollY;
 
                 var heading = getHeadingAtTop();
-                console.log('[ScrollObserver] scrollY:', scrollY, 'down:', isScrollingDown, 'heading:', heading);
                 sendHeading(heading);
             }
 
-            // Throttled scroll handler
+            // Throttled scroll handler - 16ms for ~60fps responsiveness
             var scrollTimeout = null;
             window.addEventListener('scroll', function() {
                 if (scrollTimeout) clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(onScroll, 50);
+                scrollTimeout = setTimeout(onScroll, 16);
             }, {passive: true});
 
             // Initialize
             setTimeout(function() {
-                console.log('[ScrollObserver] Initializing...');
                 isInitialized = true;
                 lastScrollY = window.pageYOffset;
                 var heading = getHeadingAtTop();
-                console.log('[ScrollObserver] Initial heading:', heading);
                 sendHeading(heading);
             }, 500);
-
-            console.log('[ScrollObserver] Script loaded');
         })();
         """
     }
@@ -180,13 +172,7 @@ struct MarkdownWebView: NSViewRepresentable {
                 return false;
             })();
             """
-            webView.evaluateJavaScript(script) { [weak self] result, error in
-                if let error = error {
-                    print("Scroll error: \(error)")
-                } else if let success = result as? Bool, !success {
-                    print("Anchor not found: \(anchor)")
-                }
-            }
+            webView.evaluateJavaScript(script, completionHandler: nil)
         }
     }
 }
