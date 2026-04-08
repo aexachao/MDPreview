@@ -71,9 +71,10 @@ jobs:
           # Extract changelog section for this version
           VERSION=$(cat VERSION)
           # Get content between version header and next version header (or end)
-          CHANGELOG=$(awk "/## \[${VERSION}\]/,/## \[/" CHANGELOG.md | head -n -1 | tail -n +2)
-          # Remove markdown headers but keep content
-          NOTES=$(echo "$CHANGELOG" | sed 's/^### /**/;s/$/**/' | tr '\n' ' ' | sed 's/\*\*  \*\*/\n\n/g')
+          # Use sed to remove first line (version header) and last line (next version header)
+          CHANGELOG=$(awk "/## \[${VERSION}\]/,/## \[/" CHANGELOG.md | sed '1d;$d')
+          # Remove ### prefix but keep content, convert newlines to spaces
+          NOTES=$(echo "$CHANGELOG" | sed 's/^### /**/;s/^- /**/;s/$/**/' | tr '\n' ' ' | sed 's/\*\*  \*\*/\n\n/g')
           echo "notes<<EOF" >> $GITHUB_OUTPUT
           echo "$NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
