@@ -18,6 +18,7 @@ class MainWindowController: NSWindowController {
         window.center()
         window.minSize = NSSize(width: 600, height: 400)
         window.setFrameAutosaveName("MainWindow-\(UUID().uuidString)")
+        window.isReleasedWhenClosed = true  // Keep window in memory when closed
 
         self.init(window: window)
 
