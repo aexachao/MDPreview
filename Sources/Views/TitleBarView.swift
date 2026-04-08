@@ -36,7 +36,7 @@ struct TitleBarView: View {
                 .help(Strings.shared.settings)
 
                 Button(action: onOpenFile) {
-                    Image(systemName: "doc.text")
+                    Image(systemName: "doc.badge.plus")
                         .foregroundColor(.secondary)
                 }
                 .buttonStyle(.borderless)

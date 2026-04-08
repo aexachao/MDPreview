@@ -20,7 +20,7 @@ struct EmptyStateView: View {
             }
 
             Button(action: onOpenFile) {
-                Label(Strings.shared.openFileButton, systemImage: "doc.text")
+                Label(Strings.shared.openFileButton, systemImage: "doc.badge.plus")
                     .font(.body)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 10)

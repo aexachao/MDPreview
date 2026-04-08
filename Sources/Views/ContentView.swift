@@ -264,7 +264,7 @@ struct ErrorView: View {
 struct EmptyMarkdownView: View {
     var body: some View {
         VStack(spacing: 16) {
-            Image(systemName: "doc.text")
+            Image(systemName: "doc.badge.plus")
                 .font(.system(size: 48))
                 .foregroundColor(.secondary)
             Text(Strings.shared.emptyFile)

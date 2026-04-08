@@ -109,7 +109,7 @@ extension MainWindowController: NSToolbarDelegate {
             item.label = s.open
             item.paletteLabel = s.open
             item.toolTip = s.open
-            item.image = NSImage(systemSymbolName: "doc.text", accessibilityDescription: s.open)
+            item.image = NSImage(systemSymbolName: "doc.badge.plus", accessibilityDescription: s.open)
             item.target = self
             item.action = #selector(openFileAction(_:))
             return item
