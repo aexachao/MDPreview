@@ -69,8 +69,7 @@ class Strings {
     var about: String { isChinese ? "关于" : "About" }
     var language: String { isChinese ? "语言" : "Language" }
     var launchAtLogin: String { isChinese ? "开机自启动" : "Launch at Login" }
-    var stealthMode: String { isChinese ? "无痕模式" : "Stealth Mode" }
-    var stealthModeDescription: String { isChinese ? "隐藏 Dock 图标，应用不显示在程序坞" : "Hides Dock icon, app won't appear in Dock" }
+    var stealthMode: String { isChinese ? "隐藏 Dock 图标" : "Hide Dock Icon" }
     var showStatusBarIcon: String { isChinese ? "显示状态栏图标" : "Show Status Bar Icon" }
     var version: String { isChinese ? "版本" : "Version" }
     var appDescription: String { isChinese ? "Markdown 文件预览工具" : "Markdown File Preview Tool" }
