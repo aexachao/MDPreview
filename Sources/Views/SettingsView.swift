@@ -65,17 +65,18 @@ struct SettingsView: View {
     }
 
     private func restartApp() {
-        let app = NSApplication.shared
-        app.setActivationPolicy(.regular)
+        // Get the .app bundle path, not the executable path
+        guard let bundlePath = Bundle.main.bundlePath as String? else { return }
+        let appPath = bundlePath.hasSuffix(".app") ? bundlePath : "\(bundlePath)/../.."
 
-        // Relaunch the app
+        // Relaunch using open command
         let task = Process()
-        task.launchPath = Bundle.main.bundlePath
-        task.arguments = []
+        task.launchPath = "/usr/bin/open"
+        task.arguments = ["-n", appPath]
         task.launch()
 
         // Terminate current instance
-        app.terminate(nil)
+        NSApp.terminate(nil)
     }
 }
 
