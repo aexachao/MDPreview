@@ -84,6 +84,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func setupMenuBar() {
+        let s = Strings.shared
         let mainMenu = NSMenu()
 
         // App menu
@@ -92,56 +93,56 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let appMenu = NSMenu()
         appMenuItem.submenu = appMenu
 
-        appMenu.addItem(withTitle: "关于 MDPreview", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
+        appMenu.addItem(withTitle: s.aboutApp, action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
         appMenu.addItem(NSMenuItem.separator())
-        appMenu.addItem(withTitle: "设置...", action: #selector(showSettings(_:)), keyEquivalent: ",")
+        appMenu.addItem(withTitle: s.settings, action: #selector(showSettings(_:)), keyEquivalent: ",")
         appMenu.addItem(NSMenuItem.separator())
-        appMenu.addItem(withTitle: "退出 MDPreview", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appMenu.addItem(withTitle: s.quitApp, action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
 
         // File menu
         let fileMenuItem = NSMenuItem()
         mainMenu.addItem(fileMenuItem)
-        let fileMenu = NSMenu(title: "文件")
+        let fileMenu = NSMenu(title: s.file)
         fileMenuItem.submenu = fileMenu
 
-        let openItem = NSMenuItem(title: "打开...", action: #selector(openDocument(_:)), keyEquivalent: "o")
+        let openItem = NSMenuItem(title: s.open, action: #selector(openDocument(_:)), keyEquivalent: "o")
         openItem.image = NSImage(systemSymbolName: "doc.text", accessibilityDescription: nil)
         fileMenu.addItem(openItem)
 
-        let newWindowItem = NSMenuItem(title: "新建窗口", action: #selector(newWindow(_:)), keyEquivalent: "n")
+        let newWindowItem = NSMenuItem(title: s.newWindow, action: #selector(newWindow(_:)), keyEquivalent: "n")
         newWindowItem.image = NSImage(systemSymbolName: "macwindow", accessibilityDescription: nil)
         fileMenu.addItem(newWindowItem)
 
         fileMenu.addItem(NSMenuItem.separator())
 
-        let closeItem = NSMenuItem(title: "关闭", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
+        let closeItem = NSMenuItem(title: s.close, action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         fileMenu.addItem(closeItem)
 
         // Edit menu
         let editMenuItem = NSMenuItem()
         mainMenu.addItem(editMenuItem)
-        let editMenu = NSMenu(title: "编辑")
+        let editMenu = NSMenu(title: s.edit)
         editMenuItem.submenu = editMenu
 
-        editMenu.addItem(withTitle: "复制", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
-        editMenu.addItem(withTitle: "全选", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        editMenu.addItem(withTitle: s.copy, action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        editMenu.addItem(withTitle: s.selectAll, action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
 
         // View menu
         let viewMenuItem = NSMenuItem()
         mainMenu.addItem(viewMenuItem)
-        let viewMenu = NSMenu(title: "视图")
+        let viewMenu = NSMenu(title: s.view)
         viewMenuItem.submenu = viewMenu
 
-        viewMenu.addItem(withTitle: "进入全屏", action: #selector(NSWindow.toggleFullScreen(_:)), keyEquivalent: "f")
+        viewMenu.addItem(withTitle: s.enterFullScreen, action: #selector(NSWindow.toggleFullScreen(_:)), keyEquivalent: "f")
 
         // Window menu
         let windowMenuItem = NSMenuItem()
         mainMenu.addItem(windowMenuItem)
-        let windowMenu = NSMenu(title: "窗口")
+        let windowMenu = NSMenu(title: s.window)
         windowMenuItem.submenu = windowMenu
 
-        windowMenu.addItem(withTitle: "最小化", action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
-        windowMenu.addItem(withTitle: "缩放", action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
+        windowMenu.addItem(withTitle: s.minimize, action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
+        windowMenu.addItem(withTitle: s.zoom, action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
 
         NSApplication.shared.mainMenu = mainMenu
         NSApplication.shared.windowsMenu = windowMenu
@@ -190,7 +191,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 backing: .buffered,
                 defer: false
             )
-            settingsWindow.title = "设置"
+            settingsWindow.title = Strings.shared.settings
             settingsWindow.center()
             settingsWindow.contentView = NSHostingView(rootView: SettingsView())
             settingsWindow.isReleasedWhenClosed = false

@@ -28,28 +28,29 @@ class StatusBarController {
     }
 
     private func createMenu() -> NSMenu {
+        let s = Strings.shared
         let menu = NSMenu()
 
-        let openItem = NSMenuItem(title: "打开文件...", action: #selector(openFileAction), keyEquivalent: "o")
+        let openItem = NSMenuItem(title: s.open, action: #selector(openFileAction), keyEquivalent: "o")
         openItem.image = NSImage(systemSymbolName: "doc.text", accessibilityDescription: nil)
         openItem.target = self
         menu.addItem(openItem)
 
-        let newWindowItem = NSMenuItem(title: "新建窗口", action: #selector(newWindowAction), keyEquivalent: "n")
+        let newWindowItem = NSMenuItem(title: s.newWindow, action: #selector(newWindowAction), keyEquivalent: "n")
         newWindowItem.image = NSImage(systemSymbolName: "macwindow", accessibilityDescription: nil)
         newWindowItem.target = self
         menu.addItem(newWindowItem)
 
         menu.addItem(NSMenuItem.separator())
 
-        let settingsItem = NSMenuItem(title: "设置...", action: #selector(showSettingsAction), keyEquivalent: ",")
+        let settingsItem = NSMenuItem(title: s.settings, action: #selector(showSettingsAction), keyEquivalent: ",")
         settingsItem.image = NSImage(systemSymbolName: "gear", accessibilityDescription: nil)
         settingsItem.target = self
         menu.addItem(settingsItem)
 
         menu.addItem(NSMenuItem.separator())
 
-        let quitItem = NSMenuItem(title: "退出 MDPreview", action: #selector(quitAction), keyEquivalent: "q")
+        let quitItem = NSMenuItem(title: s.quitApp, action: #selector(quitAction), keyEquivalent: "q")
         quitItem.image = NSImage(systemSymbolName: "power", accessibilityDescription: nil)
         quitItem.target = self
         menu.addItem(quitItem)

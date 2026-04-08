@@ -21,7 +21,7 @@ class SettingsManager: ObservableObject {
 
         var displayName: String {
             switch self {
-            case .system: return "跟随系统"
+            case .system: return String(localized: "跟随系统")
             case .english: return "English"
             case .chinese: return "中文"
             }

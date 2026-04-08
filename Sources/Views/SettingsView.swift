@@ -7,38 +7,38 @@ struct SettingsView: View {
         VStack(spacing: 0) {
             Form {
                 Section {
-                    Picker("语言 / Language", selection: $settingsManager.locale) {
+                    Picker(Strings.shared.language, selection: $settingsManager.locale) {
                         ForEach(SettingsManager.Locale.allCases, id: \.self) { locale in
                             Text(locale.displayName).tag(locale)
                         }
                     }
 
-                    Toggle("开机自启动", isOn: $settingsManager.launchAtLogin)
+                    Toggle(Strings.shared.launchAtLogin, isOn: $settingsManager.launchAtLogin)
                         .toggleStyle(.switch)
 
-                    Toggle("隐藏 Dock 图标", isOn: $settingsManager.hideDockIcon)
+                    Toggle(Strings.shared.hideDockIcon, isOn: $settingsManager.hideDockIcon)
                         .toggleStyle(.switch)
 
-                    Toggle("显示状态栏图标", isOn: $settingsManager.showStatusBarIcon)
+                    Toggle(Strings.shared.showStatusBarIcon, isOn: $settingsManager.showStatusBarIcon)
                         .toggleStyle(.switch)
                         .onChange(of: settingsManager.showStatusBarIcon) { newValue in
                             NotificationCenter.default.post(name: .statusBarVisibilityChanged, object: newValue)
                         }
                 } header: {
-                    Text("通用设置")
+                    Text(Strings.shared.generalSettings)
                         .font(.headline)
                 }
 
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("版本: 1.0.6")
+                        Text("\(Strings.shared.version): 1.0.6")
                             .foregroundColor(.secondary)
-                        Text("MDPreview - Markdown 文件预览工具")
+                        Text("MDPreview - \(Strings.shared.appDescription)")
                             .foregroundColor(.secondary)
                     }
                     .padding(.vertical, 4)
                 } header: {
-                    Text("关于")
+                    Text(Strings.shared.about)
                         .font(.headline)
                 }
             }

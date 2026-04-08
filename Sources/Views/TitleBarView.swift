@@ -22,7 +22,7 @@ struct TitleBarView: View {
                     .foregroundColor(.secondary)
             }
             .buttonStyle(.borderless)
-            .help(sidebarVisible ? "隐藏大纲" : "显示大纲")
+            .help(sidebarVisible ? Strings.shared.hideSidebar : Strings.shared.showSidebar)
 
             Spacer()
 
@@ -33,14 +33,14 @@ struct TitleBarView: View {
                         .foregroundColor(.secondary)
                 }
                 .buttonStyle(.borderless)
-                .help("设置")
+                .help(Strings.shared.settings)
 
                 Button(action: onOpenFile) {
                     Image(systemName: "doc.text")
                         .foregroundColor(.secondary)
                 }
                 .buttonStyle(.borderless)
-                .help("打开文件")
+                .help(Strings.shared.open)
             }
         }
         .padding(.horizontal, 16)

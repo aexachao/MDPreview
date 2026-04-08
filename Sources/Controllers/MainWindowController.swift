@@ -72,13 +72,14 @@ class MainWindowController: NSWindowController {
 
 extension MainWindowController: NSToolbarDelegate {
     func toolbar(_ toolbar: NSToolbar, itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier, willBeInsertedIntoToolbar flag: Bool) -> NSToolbarItem? {
+        let s = Strings.shared
         switch itemIdentifier.rawValue {
         case "SidebarToggle":
             let item = NSToolbarItem(itemIdentifier: itemIdentifier)
-            item.label = "大纲"
-            item.paletteLabel = "显示/隐藏大纲"
-            item.toolTip = "显示/隐藏大纲"
-            item.image = NSImage(systemSymbolName: "sidebar.left", accessibilityDescription: "大纲")
+            item.label = s.outline
+            item.paletteLabel = s.toggleOutline
+            item.toolTip = s.toggleOutline
+            item.image = NSImage(systemSymbolName: "sidebar.left", accessibilityDescription: s.outline)
             item.target = self
             item.action = #selector(toggleSidebar(_:))
             return item
@@ -94,20 +95,20 @@ extension MainWindowController: NSToolbarDelegate {
 
         case "Settings":
             let item = NSToolbarItem(itemIdentifier: itemIdentifier)
-            item.label = "设置"
-            item.paletteLabel = "设置"
-            item.toolTip = "设置"
-            item.image = NSImage(systemSymbolName: "gear", accessibilityDescription: "设置")
+            item.label = s.settings
+            item.paletteLabel = s.settings
+            item.toolTip = s.settings
+            item.image = NSImage(systemSymbolName: "gear", accessibilityDescription: s.settings)
             item.target = self
             item.action = #selector(showSettingsAction(_:))
             return item
 
         case "OpenFile":
             let item = NSToolbarItem(itemIdentifier: itemIdentifier)
-            item.label = "打开"
-            item.paletteLabel = "打开文件"
-            item.toolTip = "打开文件"
-            item.image = NSImage(systemSymbolName: "doc.text", accessibilityDescription: "打开")
+            item.label = s.open
+            item.paletteLabel = s.open
+            item.toolTip = s.open
+            item.image = NSImage(systemSymbolName: "doc.text", accessibilityDescription: s.open)
             item.target = self
             item.action = #selector(openFileAction(_:))
             return item

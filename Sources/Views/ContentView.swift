@@ -121,7 +121,7 @@ struct SidebarView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("大纲")
+                Text(Strings.shared.outline)
                     .font(.headline)
                 Spacer()
             }
@@ -133,7 +133,7 @@ struct SidebarView: View {
             if documentManager.outlineItems.isEmpty {
                 VStack {
                     Spacer()
-                    Text("无大纲")
+                    Text(Strings.shared.noOutline)
                         .foregroundColor(.secondary)
                     Spacer()
                 }
