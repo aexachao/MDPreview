@@ -5,13 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.9] - 2026-04-08
+## [1.1.0] - 2026-04-08
 
 ### Added
 - Add "Show" action to status bar menu for bringing window to front
 
 ### Fixed
 - Fix: Open .md file when launched via file double-click
+- Fix: Keep window in memory when closed to preserve document state
 
 ## [1.0.8] - 2026-04-08
 
