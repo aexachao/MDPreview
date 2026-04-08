@@ -25,6 +25,10 @@ struct SettingsView: View {
 
                     Toggle(Strings.shared.stealthMode, isOn: $settingsManager.stealthMode)
                         .toggleStyle(.switch)
+                        .onChange(of: settingsManager.stealthMode) { _ in
+                            // Directly restart for stealth mode change
+                            restartApp()
+                        }
 
                     Toggle(Strings.shared.showStatusBarIcon, isOn: $settingsManager.showStatusBarIcon)
                         .toggleStyle(.switch)
