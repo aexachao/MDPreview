@@ -10,13 +10,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var pendingFilesToOpen: [URL] = []
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // Check and apply stealth mode (may trigger restart)
-        if settingsManager.checkAndApplyStealthMode() {
-            // Restart needed to apply stealth mode
-            restartApp()
-            return
-        }
-
         setupMenuBar()
         setupStatusBar()
         settingsManager.applyInitialSettings()
@@ -78,17 +71,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             name: .showSettings,
             object: nil
         )
-
-        // Setup dock icon visibility change callback
-        settingsManager.onDockIconVisibilityChanged = { [weak self] in
-            self?.restoreWindowFocus()
-        }
-    }
-
-    private func restoreWindowFocus() {
-        // Restore window focus when dock icon visibility changes
-        mainWindowController?.showWindow(nil)
-        NSApp.activate(ignoringOtherApps: true)
     }
 
     @objc private func statusBarVisibilityChanged(_ notification: Notification) {
@@ -220,20 +202,5 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         settingsWindow.isReleasedWhenClosed = false
         settingsWindow.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
-    }
-
-    private func restartApp() {
-        let bundlePath = Bundle.main.bundlePath
-
-        // Launch new instance
-        let task = Process()
-        task.launchPath = "/usr/bin/open"
-        task.arguments = ["-n", bundlePath]
-        try? task.run()
-
-        // Then terminate current app
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            NSApp.terminate(nil)
-        }
     }
 }

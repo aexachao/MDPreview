@@ -9,7 +9,6 @@ class SettingsManager: ObservableObject {
 
     private enum Keys {
         static let launchAtLogin = "launchAtLogin"
-        static let stealthMode = "stealthMode"
         static let showStatusBarIcon = "showStatusBarIcon"
         static let locale = "locale"
     }
@@ -28,18 +27,10 @@ class SettingsManager: ObservableObject {
         }
     }
 
-    var onDockIconVisibilityChanged: (() -> Void)?
-
     @Published var launchAtLogin: Bool {
         didSet {
             defaults.set(launchAtLogin, forKey: Keys.launchAtLogin)
             updateLoginItem()
-        }
-    }
-
-    @Published var stealthMode: Bool {
-        didSet {
-            defaults.set(stealthMode, forKey: Keys.stealthMode)
         }
     }
 
@@ -58,7 +49,6 @@ class SettingsManager: ObservableObject {
 
     private init() {
         self.launchAtLogin = defaults.bool(forKey: Keys.launchAtLogin)
-        self.stealthMode = defaults.bool(forKey: Keys.stealthMode)
         self.showStatusBarIcon = defaults.object(forKey: Keys.showStatusBarIcon) as? Bool ?? true
 
         let localeRaw = defaults.string(forKey: Keys.locale) ?? Locale.system.rawValue
@@ -108,33 +98,5 @@ class SettingsManager: ObservableObject {
             languages = ["zh"]
         }
         defaults.set(languages, forKey: "AppleLanguages")
-    }
-
-    // MARK: - Stealth Mode (LSUIElement)
-
-    /// Checks if stealth mode needs to be applied on app launch
-    /// Returns true if a restart is needed to apply stealth mode changes
-    func checkAndApplyStealthMode() -> Bool {
-        guard let infoPlistPath = Bundle.main.path(forResource: "Info", ofType: "plist"),
-              var infoPlist = NSMutableDictionary(contentsOfFile: infoPlistPath) else {
-            return false
-        }
-
-        let currentLSUIElement = infoPlist["LSUIElement"] as? Bool ?? false
-
-        if stealthMode != currentLSUIElement {
-            // Need to update Info.plist
-            if stealthMode {
-                infoPlist["LSUIElement"] = true
-            } else {
-                infoPlist.removeObject(forKey: "LSUIElement")
-            }
-
-            // Write changes
-            if infoPlist.write(toFile: infoPlistPath, atomically: true) {
-                return true // Restart needed
-            }
-        }
-        return false
     }
 }

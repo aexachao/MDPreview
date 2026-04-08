@@ -24,6 +24,8 @@
     <string></string>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
+    <key>LSUIElement</key>
+    <true/>
     <key>NSHumanReadableCopyright</key>
     <string>Copyright (C) 2025 Chris Li. Nas SubMaster. All rights reserved.</string>
     <key>CFBundleDocumentTypes</key>

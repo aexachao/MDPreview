@@ -23,13 +23,6 @@ struct SettingsView: View {
                     Toggle(Strings.shared.launchAtLogin, isOn: $settingsManager.launchAtLogin)
                         .toggleStyle(.switch)
 
-                    Toggle(Strings.shared.stealthMode, isOn: $settingsManager.stealthMode)
-                        .toggleStyle(.switch)
-                        .onChange(of: settingsManager.stealthMode) { _ in
-                            // Directly restart for stealth mode change
-                            restartApp()
-                        }
-
                     Toggle(Strings.shared.showStatusBarIcon, isOn: $settingsManager.showStatusBarIcon)
                         .toggleStyle(.switch)
                         .onChange(of: settingsManager.showStatusBarIcon) { newValue in
@@ -72,13 +65,8 @@ struct SettingsView: View {
         let bundlePath = Bundle.main.bundlePath
 
         // Launch new instance
-        let task = Process()
-        task.launchPath = "/usr/bin/open"
-        task.arguments = ["-n", bundlePath]
-        try? task.run()
-
-        // Then terminate current app
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            NSWorkspace.shared.open(URL(fileURLWithPath: bundlePath))
             NSApp.terminate(nil)
         }
     }
