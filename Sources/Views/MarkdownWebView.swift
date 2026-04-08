@@ -58,25 +58,26 @@ struct MarkdownWebView: NSViewRepresentable {
                 if (headings.length === 0) return null;
 
                 var viewportHeight = window.innerHeight;
+                var midpoint = viewportHeight * 0.5;
 
-                // Find heading closest to top of viewport (within upper 40%)
+                // Find heading that has crossed the midpoint (bottom edge past midpoint)
                 for (var i = 0; i < headings.length; i++) {
                     var heading = headings[i];
                     if (!heading.id) continue;
 
                     var rect = heading.getBoundingClientRect();
-                    // Heading's top is between 0 and 40% of viewport height
-                    if (rect.top > 10 && rect.top < viewportHeight * 0.4) {
+                    // Heading's bottom has crossed the midpoint
+                    if (rect.bottom > midpoint) {
                         return heading.id;
                     }
                 }
 
-                // If nothing in upper 40%, return first heading below viewport top
+                // Fallback: return first heading that is visible (top in viewport)
                 for (var i = 0; i < headings.length; i++) {
                     var heading = headings[i];
                     if (!heading.id) continue;
                     var rect = heading.getBoundingClientRect();
-                    if (rect.top >= 0) {
+                    if (rect.top >= 0 && rect.top < viewportHeight) {
                         return heading.id;
                     }
                 }
