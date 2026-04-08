@@ -38,7 +38,7 @@ struct SettingsView: View {
 
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("\(Strings.shared.version): 1.0.6")
+                        Text("\(Strings.shared.version): \(appVersion)")
                             .foregroundColor(.secondary)
                         Text("MDPreview - \(Strings.shared.appDescription)")
                             .foregroundColor(.secondary)
@@ -77,6 +77,10 @@ struct SettingsView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             NSApp.terminate(nil)
         }
+    }
+
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
     }
 }
 

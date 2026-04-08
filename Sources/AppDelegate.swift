@@ -4,7 +4,6 @@ import SwiftUI
 class AppDelegate: NSObject, NSApplicationDelegate {
     var mainWindowController: MainWindowController?
     private var statusBarController: StatusBarController?
-    private var settingsWindowController: NSWindow?
     private let settingsManager = SettingsManager.shared
 
     // Store files to open when app is ready (openFiles called before didFinishLaunching)
@@ -204,14 +203,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc func showSettings(_ sender: Any?) {
-        // Check if we already have a settings window
-        if let existingWindow = settingsWindowController {
-            existingWindow.makeKeyAndOrderFront(nil)
-            NSApp.activate(ignoringOtherApps: true)
-            return
-        }
-
-        // Create a new settings window
+        // Always create a new settings window to avoid lifecycle issues
         let settingsWindow = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 400, height: 280),
             styleMask: [.titled, .closable],
@@ -221,17 +213,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         settingsWindow.title = Strings.shared.settings
         settingsWindow.center()
         settingsWindow.contentView = NSHostingView(rootView: SettingsView())
-        settingsWindow.delegate = self
-        settingsWindowController = settingsWindow
-        settingsWindowController?.makeKeyAndOrderFront(nil)
+        settingsWindow.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
-    }
-}
-
-extension AppDelegate: NSWindowDelegate {
-    func windowWillClose(_ notification: Notification) {
-        if let window = notification.object as? NSWindow, window == settingsWindowController {
-            settingsWindowController = nil
-        }
     }
 }
