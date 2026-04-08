@@ -48,12 +48,6 @@ open MDPreview.xcodeproj
 - macOS 13.0 (Ventura) 或更高版本
 - Xcode 15.0 或更高版本
 
-## 版本
-
-当前版本：`1.0.10`
-
-历史版本请查看 [CHANGELOG.md](CHANGELOG.md)。
-
 ## 项目架构
 
 MDPreview 采用 **混合 AppKit/SwiftUI** 架构：
@@ -88,10 +82,6 @@ Resources/
 ```
 
 ## 开发
-
-### 版本管理
-
-本项目使用语义化版本号（SemVer）。当前版本见 `VERSION` 文件。
 
 ### 持续集成
 

@@ -55,8 +55,8 @@ jobs:
           cp -R "$APP_PATH" "$TEMP_DIR/"
           ln -sf /Applications "$TEMP_DIR/Applications"
 
-          # Rename DMG to include version
-          DMG_NAME="MDPreview_${VERSION}.dmg"
+          # Use version from steps.version.outputs
+          DMG_NAME="MDPreview_${{ steps.version.outputs.version }}.dmg"
 
           hdiutil create -size 100m \
             -fs HFS+ \
@@ -89,7 +89,7 @@ jobs:
         run: |
           TAG_NAME="${GITHUB_REF#refs/tags/}"
           NOTES="${{ steps.changelog.outputs.notes }}"
-          DMG_NAME="MDPreview_${VERSION}.dmg"
+          DMG_NAME="MDPreview_${{ steps.version.outputs.version }}.dmg"
           # Create release with changelog notes, then upload DMG
           gh release create "$TAG_NAME" --title "MDPreview $TAG_NAME" --notes "$NOTES" "$DMG_NAME" || gh release upload "$TAG_NAME" "$DMG_NAME" --clobber
 
