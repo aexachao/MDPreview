@@ -1,7 +1,10 @@
 import SwiftUI
+import AppKit
 
 struct SettingsView: View {
     @ObservedObject var settingsManager = SettingsManager.shared
+    @State private var showRestartAlert = false
+    @State private var pendingLocale: SettingsManager.Locale = .system
 
     var body: some View {
         VStack(spacing: 0) {
@@ -11,6 +14,10 @@ struct SettingsView: View {
                         ForEach(SettingsManager.Locale.allCases, id: \.self) { locale in
                             Text(locale.displayName).tag(locale)
                         }
+                    }
+                    .onChange(of: settingsManager.locale) { newValue in
+                        pendingLocale = newValue
+                        showRestartAlert = true
                     }
 
                     Toggle(Strings.shared.launchAtLogin, isOn: $settingsManager.launchAtLogin)
@@ -45,6 +52,30 @@ struct SettingsView: View {
             .padding(20)
         }
         .frame(width: 400, height: 280)
+        .alert(isPresented: $showRestartAlert) {
+            Alert(
+                title: Text(Strings.shared.languageChangedTitle),
+                message: Text(Strings.shared.languageChangedMessage),
+                primaryButton: .default(Text(Strings.shared.restartNow)) {
+                    restartApp()
+                },
+                secondaryButton: .cancel(Text(Strings.shared.restartLater))
+            )
+        }
+    }
+
+    private func restartApp() {
+        let app = NSApplication.shared
+        app.setActivationPolicy(.regular)
+
+        // Relaunch the app
+        let task = Process()
+        task.launchPath = Bundle.main.bundlePath
+        task.arguments = []
+        task.launch()
+
+        // Terminate current instance
+        app.terminate(nil)
     }
 }
 

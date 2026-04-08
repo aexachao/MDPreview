@@ -76,4 +76,11 @@ class Strings {
 
     var fileNotFound: String { isChinese ? "文件未找到" : "File Not Found" }
     var readError: String { isChinese ? "读取文件失败" : "Failed to Read File" }
+
+    // MARK: - Restart Alert
+
+    var languageChangedTitle: String { isChinese ? "语言已更改" : "Language Changed" }
+    var languageChangedMessage: String { isChinese ? "语言更改需要重启应用才能生效。是否立即重启？" : "Language changes require restarting the app to take effect. Restart now?" }
+    var restartNow: String { isChinese ? "立即重启" : "Restart Now" }
+    var restartLater: String { isChinese ? "稍后" : "Later" }
 }
