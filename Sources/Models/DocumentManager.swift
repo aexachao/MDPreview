@@ -73,6 +73,7 @@ class DocumentManager: ObservableObject {
     private func parseOutline(from markdown: String) {
         var items: [OutlineItem] = []
         let lines = markdown.components(separatedBy: CharacterSet.newlines)
+        var anchorCounts: [String: Int] = [:]
 
         for line in lines {
             let trimmed = line.trimmingCharacters(in: CharacterSet.whitespaces)
@@ -91,8 +92,17 @@ class DocumentManager: ObservableObject {
                 if level > 0 && level <= 6 {
                     title = String(trimmed.dropFirst(level)).trimmingCharacters(in: CharacterSet.whitespaces)
                     // Only replace spaces with hyphens, keep all other characters including Chinese
-                    let anchor = title.lowercased()
+                    let baseAnchor = title.lowercased()
                         .replacingOccurrences(of: " ", with: "-")
+
+                    // Handle duplicate anchors by adding index
+                    var anchor = baseAnchor
+                    if let count = anchorCounts[baseAnchor] {
+                        anchorCounts[baseAnchor] = count + 1
+                        anchor = "\(baseAnchor)-\(count)"
+                    } else {
+                        anchorCounts[baseAnchor] = 1
+                    }
 
                     items.append(OutlineItem(level: level, title: title, anchor: anchor))
                 }
