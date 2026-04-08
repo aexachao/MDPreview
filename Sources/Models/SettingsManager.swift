@@ -9,7 +9,7 @@ class SettingsManager: ObservableObject {
 
     private enum Keys {
         static let launchAtLogin = "launchAtLogin"
-        static let hideDockIcon = "hideDockIcon"
+        static let stealthMode = "stealthMode"
         static let showStatusBarIcon = "showStatusBarIcon"
         static let locale = "locale"
     }
@@ -37,10 +37,9 @@ class SettingsManager: ObservableObject {
         }
     }
 
-    @Published var hideDockIcon: Bool {
+    @Published var stealthMode: Bool {
         didSet {
-            defaults.set(hideDockIcon, forKey: Keys.hideDockIcon)
-            updateDockIconVisibility()
+            defaults.set(stealthMode, forKey: Keys.stealthMode)
         }
     }
 
@@ -59,7 +58,7 @@ class SettingsManager: ObservableObject {
 
     private init() {
         self.launchAtLogin = defaults.bool(forKey: Keys.launchAtLogin)
-        self.hideDockIcon = defaults.bool(forKey: Keys.hideDockIcon)
+        self.stealthMode = defaults.bool(forKey: Keys.stealthMode)
         self.showStatusBarIcon = defaults.object(forKey: Keys.showStatusBarIcon) as? Bool ?? true
 
         let localeRaw = defaults.string(forKey: Keys.locale) ?? Locale.system.rawValue
@@ -87,18 +86,6 @@ class SettingsManager: ObservableObject {
         }
     }
 
-    private func updateDockIconVisibility() {
-        // Note: NSApp.setActivationPolicy(.accessory) makes windows unable to become key
-        // For apps with windows, this is problematic. The Dock icon visibility is
-        // controlled by macOS and cannot be changed at runtime for regular apps.
-        // We keep the app in .regular mode to ensure windows work properly.
-        if !hideDockIcon {
-            NSApp.setActivationPolicy(.regular)
-        }
-        // Notify app to restore window focus
-        onDockIconVisibilityChanged?()
-    }
-
     func applyInitialSettings() {
         // Always start in regular mode so window can be displayed
         NSApp.setActivationPolicy(.regular)
@@ -121,5 +108,33 @@ class SettingsManager: ObservableObject {
             languages = ["zh"]
         }
         defaults.set(languages, forKey: "AppleLanguages")
+    }
+
+    // MARK: - Stealth Mode (LSUIElement)
+
+    /// Checks if stealth mode needs to be applied on app launch
+    /// Returns true if a restart is needed to apply stealth mode changes
+    func checkAndApplyStealthMode() -> Bool {
+        guard let infoPlistPath = Bundle.main.path(forResource: "Info", ofType: "plist"),
+              var infoPlist = NSMutableDictionary(contentsOfFile: infoPlistPath) else {
+            return false
+        }
+
+        let currentLSUIElement = infoPlist["LSUIElement"] as? Bool ?? false
+
+        if stealthMode != currentLSUIElement {
+            // Need to update Info.plist
+            if stealthMode {
+                infoPlist["LSUIElement"] = true
+            } else {
+                infoPlist.removeObject(forKey: "LSUIElement")
+            }
+
+            // Write changes
+            if infoPlist.write(toFile: infoPlistPath, atomically: true) {
+                return true // Restart needed
+            }
+        }
+        return false
     }
 }

@@ -23,8 +23,15 @@ struct SettingsView: View {
                     Toggle(Strings.shared.launchAtLogin, isOn: $settingsManager.launchAtLogin)
                         .toggleStyle(.switch)
 
-                    Toggle(Strings.shared.hideDockIcon, isOn: $settingsManager.hideDockIcon)
-                        .toggleStyle(.switch)
+                    Toggle(isOn: $settingsManager.stealthMode) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(Strings.shared.stealthMode)
+                            Text(Strings.shared.stealthModeDescription)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .toggleStyle(.switch)
 
                     Toggle(Strings.shared.showStatusBarIcon, isOn: $settingsManager.showStatusBarIcon)
                         .toggleStyle(.switch)
