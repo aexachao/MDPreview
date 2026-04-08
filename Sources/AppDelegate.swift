@@ -184,20 +184,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc func showSettings(_ sender: Any?) {
-        if settingsWindowController == nil {
-            let settingsWindow = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 400, height: 220),
-                styleMask: [.titled, .closable],
-                backing: .buffered,
-                defer: false
-            )
-            settingsWindow.title = Strings.shared.settings
-            settingsWindow.center()
-            settingsWindow.contentView = NSHostingView(rootView: SettingsView())
-            settingsWindow.isReleasedWhenClosed = false
-            settingsWindow.delegate = self
-            settingsWindowController = settingsWindow
-        }
+        // Always create a new settings window to avoid window restoration caching
+        let settingsWindow = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 400, height: 280),
+            styleMask: [.titled, .closable],
+            backing: .buffered,
+            defer: false
+        )
+        settingsWindow.title = Strings.shared.settings
+        settingsWindow.center()
+        settingsWindow.contentView = NSHostingView(rootView: SettingsView())
+        settingsWindow.isReleasedWhenClosed = true
+        settingsWindow.delegate = self
+        settingsWindowController = settingsWindow
         settingsWindowController?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
