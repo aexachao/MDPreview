@@ -13,7 +13,8 @@
 
 ## 截图
 
-![MDPreview 界面截图](Resources/Screenshots/demo.png)
+![MDPreview 主界面](Resources/Screenshots/demo-1.png)
+![MDPreview 设置面板](Resources/Screenshots/demo-2.png)
 
 ## 安装
 
