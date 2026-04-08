@@ -80,10 +80,8 @@ extension MainWindowController: NSToolbarDelegate {
             item.label = s.outline
             item.paletteLabel = s.toggleOutline
             item.toolTip = s.toggleOutline
-            if let image = NSImage(systemSymbolName: "sidebar.left", accessibilityDescription: s.outline) {
-                image.size = NSSize(width: 14, height: 14)
-                item.image = image
-            }
+            let config = NSImage.SymbolConfiguration(pointSize: 12, weight: .regular)
+            item.image = NSImage(systemSymbolName: "sidebar.left", accessibilityDescription: s.outline)?.withSymbolConfiguration(config)
             item.target = self
             item.action = #selector(toggleSidebar(_:))
             return item
@@ -102,10 +100,8 @@ extension MainWindowController: NSToolbarDelegate {
             item.label = s.settings
             item.paletteLabel = s.settings
             item.toolTip = s.settings
-            if let image = NSImage(systemSymbolName: "gear", accessibilityDescription: s.settings) {
-                image.size = NSSize(width: 14, height: 14)
-                item.image = image
-            }
+            let config = NSImage.SymbolConfiguration(pointSize: 12, weight: .regular)
+            item.image = NSImage(systemSymbolName: "gear", accessibilityDescription: s.settings)?.withSymbolConfiguration(config)
             item.target = self
             item.action = #selector(showSettingsAction(_:))
             return item
@@ -115,10 +111,8 @@ extension MainWindowController: NSToolbarDelegate {
             item.label = s.open
             item.paletteLabel = s.open
             item.toolTip = s.open
-            if let image = NSImage(systemSymbolName: "doc.badge.plus", accessibilityDescription: s.open) {
-                image.size = NSSize(width: 14, height: 14)
-                item.image = image
-            }
+            let config = NSImage.SymbolConfiguration(pointSize: 12, weight: .regular)
+            item.image = NSImage(systemSymbolName: "doc.badge.plus", accessibilityDescription: s.open)?.withSymbolConfiguration(config)
             item.target = self
             item.action = #selector(openFileAction(_:))
             return item
