@@ -44,6 +44,7 @@ struct SettingsView: View {
                 } header: {
                     Text(Strings.shared.about)
                         .font(.headline)
+                        .padding(.top, 12)
                 }
             }
             .padding(20)
