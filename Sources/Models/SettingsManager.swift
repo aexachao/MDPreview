@@ -108,10 +108,13 @@ class SettingsManager: ObservableObject {
     }
 
     private func applyLocale() {
-        let languages: [String]
+        let languages: [String]?
         switch locale {
         case .system:
-            languages = []
+            // When following system, don't modify AppleLanguages
+            // Remove the key to let system use its default
+            defaults.removeObject(forKey: "AppleLanguages")
+            return
         case .english:
             languages = ["en"]
         case .chinese:
