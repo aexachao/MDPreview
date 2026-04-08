@@ -66,19 +66,17 @@ struct SettingsView: View {
 
     private func restartApp() {
         let bundlePath = Bundle.main.bundlePath
-        let currentPID = ProcessInfo.processInfo.processIdentifier
 
-        // Create a script that launches new instance then kills current one
-        let script = """
-        open -n "\(bundlePath)"
-        kill \(currentPID)
-        """
-
-        // Use shell to execute the script
-        var task = Process()
-        task.launchPath = "/bin/bash"
-        task.arguments = ["-c", script]
+        // Launch new instance
+        let task = Process()
+        task.launchPath = "/usr/bin/open"
+        task.arguments = ["-n", bundlePath]
         try? task.run()
+
+        // Then terminate current app
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            NSApp.terminate(nil)
+        }
     }
 }
 
