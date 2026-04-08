@@ -35,6 +35,7 @@ struct MarkdownWebView: NSViewRepresentable {
             context.coordinator.lastHTML = html
             context.coordinator.pendingAnchor = scrollToAnchor
             context.coordinator.onVisibleHeadingChange = onVisibleHeadingChange
+            // Reset JS state by reloading - script will reinitialize automatically
             webView.loadHTMLString(html, baseURL: nil)
         } else {
             // Just update the callback reference, don't reload
@@ -49,61 +50,62 @@ struct MarkdownWebView: NSViewRepresentable {
     private var scrollObserverScript: String {
         """
         (function() {
-            var visibleHeading = null;
+            var lastSentHeading = null;
+            var isInitialized = false;
 
             function getVisibleHeading() {
                 var headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
                 if (headings.length === 0) return null;
 
-                var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
                 var viewportHeight = window.innerHeight;
-                var bestHeading = null;
-                var bestDistance = Infinity;
 
+                // Find heading closest to top of viewport (within upper 40%)
                 for (var i = 0; i < headings.length; i++) {
                     var heading = headings[i];
-                    var rect = heading.getBoundingClientRect();
-
                     if (!heading.id) continue;
 
-                    if (rect.top >= 0 && rect.top < viewportHeight * 0.6) {
-                        var distance = Math.abs(rect.top);
-                        if (distance < bestDistance) {
-                            bestDistance = distance;
-                            bestHeading = heading.id;
-                        }
+                    var rect = heading.getBoundingClientRect();
+                    // Heading's top is between 0 and 40% of viewport height
+                    if (rect.top > 10 && rect.top < viewportHeight * 0.4) {
+                        return heading.id;
                     }
                 }
 
-                if (!bestHeading) {
-                    for (var i = 0; i < headings.length; i++) {
-                        var heading = headings[i];
-                        if (!heading.id) continue;
-                        if (heading.getBoundingClientRect().top < 0) {
-                            bestHeading = heading.id;
-                            break;
-                        }
+                // If nothing in upper 40%, return first heading below viewport top
+                for (var i = 0; i < headings.length; i++) {
+                    var heading = headings[i];
+                    if (!heading.id) continue;
+                    var rect = heading.getBoundingClientRect();
+                    if (rect.top >= 0) {
+                        return heading.id;
                     }
                 }
 
-                return bestHeading;
+                return null;
             }
 
-            function sendVisibleHeading() {
-                var current = getVisibleHeading();
-                if (current !== visibleHeading) {
-                    visibleHeading = current;
-                    window.webkit.messageHandlers.visibleHeading.postMessage(current);
+            function sendHeading() {
+                if (!isInitialized) return;
+
+                var heading = getVisibleHeading();
+                if (heading !== lastSentHeading) {
+                    lastSentHeading = heading;
+                    window.webkit.messageHandlers.visibleHeading.postMessage(heading);
                 }
             }
 
-            var timeout = null;
+            // Throttled scroll handler - 100ms
+            var scrollTimeout = null;
             window.addEventListener('scroll', function() {
-                if (timeout) clearTimeout(timeout);
-                timeout = setTimeout(sendVisibleHeading, 50);
+                if (scrollTimeout) clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(sendHeading, 100);
             }, {passive: true});
 
-            setTimeout(sendVisibleHeading, 200);
+            // Initialize after a short delay to ensure DOM is ready
+            setTimeout(function() {
+                isInitialized = true;
+                sendHeading();
+            }, 300);
         })();
         """
     }
