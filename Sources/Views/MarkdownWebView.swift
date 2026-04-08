@@ -51,38 +51,68 @@ struct MarkdownWebView: NSViewRepresentable {
         """
         (function() {
             var lastSentHeading = null;
+            var lastScrollY = 0;
             var isInitialized = false;
 
             function getVisibleHeading() {
                 var headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
                 if (headings.length === 0) return null;
 
+                var scrollY = window.pageYOffset;
+                var isScrollingDown = scrollY > lastScrollY;
+                lastScrollY = scrollY;
+
                 var viewportHeight = window.innerHeight;
-                var midpoint = viewportHeight * 0.5;
 
-                // Find heading that has crossed the midpoint (bottom edge past midpoint)
+                // Find heading closest to viewport edge based on scroll direction
+                var bestHeading = null;
+                var bestScore = Infinity;
+
                 for (var i = 0; i < headings.length; i++) {
                     var heading = headings[i];
                     if (!heading.id) continue;
 
                     var rect = heading.getBoundingClientRect();
-                    // Heading's bottom has crossed the midpoint
-                    if (rect.bottom > midpoint) {
-                        return heading.id;
+                    var absTop = Math.abs(rect.top);
+
+                    // Scrolling DOWN: prefer heading that has just entered at top
+                    // (rect.top is small and positive, meaning just below viewport top)
+                    if (isScrollingDown) {
+                        // Heading's top is at or just below viewport top (0 to viewportHeight)
+                        if (rect.top >= 0 && rect.top <= viewportHeight) {
+                            var score = rect.top;
+                            if (score < bestScore) {
+                                bestScore = score;
+                                bestHeading = heading.id;
+                            }
+                        }
+                    }
+                    // Scrolling UP: prefer heading that has just entered at top from below
+                    else {
+                        // Heading's top is at or just above viewport top (negative to viewportHeight)
+                        if (rect.top <= 0 && rect.top >= -viewportHeight) {
+                            var score = Math.abs(rect.top);
+                            if (score < bestScore) {
+                                bestScore = score;
+                                bestHeading = heading.id;
+                            }
+                        }
                     }
                 }
 
-                // Fallback: return first heading that is visible (top in viewport)
-                for (var i = 0; i < headings.length; i++) {
-                    var heading = headings[i];
-                    if (!heading.id) continue;
-                    var rect = heading.getBoundingClientRect();
-                    if (rect.top >= 0 && rect.top < viewportHeight) {
-                        return heading.id;
+                // Fallback: if no heading found in scroll direction, find any heading at top
+                if (!bestHeading) {
+                    for (var i = 0; i < headings.length; i++) {
+                        var heading = headings[i];
+                        if (!heading.id) continue;
+                        var rect = heading.getBoundingClientRect();
+                        if (rect.top >= -100 && rect.top <= 100) {
+                            return heading.id;
+                        }
                     }
                 }
 
-                return null;
+                return bestHeading;
             }
 
             function sendHeading() {
@@ -95,16 +125,17 @@ struct MarkdownWebView: NSViewRepresentable {
                 }
             }
 
-            // Throttled scroll handler - 100ms
+            // Throttled scroll handler
             var scrollTimeout = null;
             window.addEventListener('scroll', function() {
                 if (scrollTimeout) clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(sendHeading, 100);
+                scrollTimeout = setTimeout(sendHeading, 50);
             }, {passive: true});
 
-            // Initialize after a short delay to ensure DOM is ready
+            // Initialize
             setTimeout(function() {
                 isInitialized = true;
+                lastScrollY = window.pageYOffset;
                 sendHeading();
             }, 300);
         })();
