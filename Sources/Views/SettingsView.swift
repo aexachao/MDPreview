@@ -31,10 +31,6 @@ struct SettingsView: View {
                         .onChange(of: settingsManager.showStatusBarIcon) { newValue in
                             NotificationCenter.default.post(name: .statusBarVisibilityChanged, object: newValue)
                         }
-
-                    Text(Strings.shared.restartHint)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
                 } header: {
                     Text(Strings.shared.generalSettings)
                         .font(.headline)
@@ -55,17 +51,34 @@ struct SettingsView: View {
             }
             .padding(20)
         }
-        .frame(width: 400, height: 320)
+        .frame(width: 400, height: 280)
         .alert(isPresented: $showRestartAlert) {
             Alert(
                 title: Text(Strings.shared.languageChangedTitle),
                 message: Text(Strings.shared.languageChangedMessage),
-                primaryButton: .default(Text(Strings.shared.ok)) {
-                    // Just close alert, user will restart manually
+                primaryButton: .default(Text(Strings.shared.restartNow)) {
+                    restartApp()
                 },
-                secondaryButton: .cancel()
+                secondaryButton: .cancel(Text(Strings.shared.restartLater))
             )
         }
+    }
+
+    private func restartApp() {
+        let bundlePath = Bundle.main.bundlePath
+        let currentPID = ProcessInfo.processInfo.processIdentifier
+
+        // Create a script that launches new instance then kills current one
+        let script = """
+        open -n "\(bundlePath)"
+        kill \(currentPID)
+        """
+
+        // Use shell to execute the script
+        var task = Process()
+        task.launchPath = "/bin/bash"
+        task.arguments = ["-c", script]
+        try? task.run()
     }
 }
 

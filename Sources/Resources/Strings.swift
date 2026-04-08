@@ -83,7 +83,8 @@ class Strings {
     // MARK: - Restart Alert
 
     var languageChangedTitle: String { isChinese ? "语言已更改" : "Language Changed" }
-    var languageChangedMessage: String { isChinese ? "语言更改需要重启应用才能生效。请手动关闭并重新打开应用。" : "Language changes require restarting the app to take effect. Please manually close and reopen the app." }
+    var languageChangedMessage: String { isChinese ? "语言更改需要重启应用才能生效。是否立即重启？" : "Language changes require restarting the app to take effect. Restart now?" }
+    var restartNow: String { isChinese ? "立即重启" : "Restart Now" }
+    var restartLater: String { isChinese ? "稍后" : "Later" }
     var restartHint: String { isChinese ? "语言更改将在重启应用后生效" : "Language changes will take effect after restarting the app" }
-    var ok: String { isChinese ? "确定" : "OK" }
 }
