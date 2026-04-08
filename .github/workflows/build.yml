@@ -3,6 +3,8 @@ name: Build DMG
 on:
   push:
     branches: [main]
+    tags:
+      - '*'
   pull_request:
     branches: [main]
   release:
@@ -68,7 +70,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG_NAME="${GITHUB_REF#refs/tags/}"
-          gh release upload "$TAG_NAME" MDPreview.dmg --clobber
+          # Create release if it doesn't exist, then upload DMG
+          gh release create "$TAG_NAME" --title "MDPreview $TAG_NAME" --notes "Release $TAG_NAME" MDPreview.dmg || gh release upload "$TAG_NAME" MDPreview.dmg --clobber
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
