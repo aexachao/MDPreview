@@ -30,9 +30,16 @@ struct MarkdownWebView: NSViewRepresentable {
     }
 
     func updateNSView(_ webView: WKWebView, context: Context) {
-        context.coordinator.pendingAnchor = scrollToAnchor
-        context.coordinator.onVisibleHeadingChange = onVisibleHeadingChange
-        webView.loadHTMLString(html, baseURL: nil)
+        // Only reload HTML if content changed (new file loaded)
+        if context.coordinator.lastHTML != html {
+            context.coordinator.lastHTML = html
+            context.coordinator.pendingAnchor = scrollToAnchor
+            context.coordinator.onVisibleHeadingChange = onVisibleHeadingChange
+            webView.loadHTMLString(html, baseURL: nil)
+        } else {
+            // Just update the callback reference, don't reload
+            context.coordinator.onVisibleHeadingChange = onVisibleHeadingChange
+        }
     }
 
     func makeCoordinator() -> Coordinator {
@@ -106,6 +113,7 @@ struct MarkdownWebView: NSViewRepresentable {
         weak var webView: WKWebView?
         var pendingAnchor: String?
         var onVisibleHeadingChange: ((String?) -> Void)?
+        var lastHTML: String = ""
         private var isInitialScrollDone = false
 
         init(_ parent: MarkdownWebView) {
