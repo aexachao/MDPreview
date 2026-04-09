@@ -4,6 +4,7 @@ import SwiftUI
 class MainWindowController: NSWindowController {
     private var documentManager = DocumentManager()
     private var contentView: ContentView?
+    private var titleTextField: NSTextField?
 
     convenience init() {
         let window = NSWindow(
@@ -62,7 +63,7 @@ class MainWindowController: NSWindowController {
 
     private func loadFile(url: URL) {
         documentManager.loadFile(url: url)
-        window?.title = url.lastPathComponent
+        titleTextField?.stringValue = url.lastPathComponent
         window?.makeKeyAndOrderFront(nil)
     }
 
@@ -92,6 +93,7 @@ extension MainWindowController: NSToolbarDelegate {
             let textField = NSTextField(labelWithString: "MDPreview")
             textField.font = NSFont.boldSystemFont(ofSize: 13)
             textField.textColor = .labelColor
+            titleTextField = textField
             item.view = textField
             return item
 
