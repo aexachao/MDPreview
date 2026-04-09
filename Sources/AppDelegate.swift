@@ -177,13 +177,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc func openDocument(_ sender: Any?) {
-        if mainWindowController == nil {
-            mainWindowController = MainWindowController()
-        }
-        mainWindowController?.showWindow(nil)
+        // Create a new window controller for each file
+        let newController = MainWindowController()
+        newController.showWindow(nil)
         // Delay openFile to ensure window and toolbar are fully loaded
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.mainWindowController?.openFile()
+            newController.openFile()
         }
         NSApp.activate(ignoringOtherApps: true)
     }
