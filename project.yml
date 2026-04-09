@@ -27,8 +27,6 @@ targets:
       - path: Resources
         excludes:
           - "**/.DS_Store"
-      - path: Resources/VERSION
-        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.mdpreview.app
@@ -42,4 +40,9 @@ targets:
     preBuildScripts:
       - name: Copy VERSION
         script: |
+          echo "Copying VERSION file..."
+          echo "PROJECT_DIR: ${PROJECT_DIR}"
+          echo "BUILT_PRODUCTS_DIR: ${BUILT_PRODUCTS_DIR}"
           cp "${PROJECT_DIR}/VERSION" "${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources/VERSION"
+          echo "VERSION file copied successfully"
+          ls -la "${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources/VERSION"

@@ -50,9 +50,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         if mainWindowController != nil {
-            // App is already initialized, open files directly
+            // App is already initialized, create new window for each file
             for url in mdFiles {
-                mainWindowController?.openFile(at: url)
+                let newController = MainWindowController()
+                newController.showWindow(nil)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    newController.openFile(at: url)
+                }
             }
         } else {
             // App not yet initialized, store files to process later

@@ -48,6 +48,14 @@ jobs:
           APP_PATH=$(find DerivedData/Build/Products/Release -name "*.app" -type d | head -1)
           echo "Found app at: $APP_PATH"
 
+          # Verify VERSION file exists
+          if [ -f "$APP_PATH/Contents/Resources/VERSION" ]; then
+            echo "VERSION file found: $(cat $APP_PATH/Contents/Resources/VERSION)"
+          else
+            echo "ERROR: VERSION file not found!"
+            ls -la "$APP_PATH/Contents/Resources/"
+          fi
+
           # Create DMG with Applications symlink
           TEMP_DIR="/tmp/mdpreview_dmg"
           rm -rf "$TEMP_DIR"
