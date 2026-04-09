@@ -4,7 +4,6 @@ import SwiftUI
 class MainWindowController: NSWindowController {
     private var documentManager = DocumentManager()
     private var contentView: ContentView?
-    private var titleTextField: NSTextField?
 
     convenience init() {
         let window = NSWindow(
@@ -36,7 +35,7 @@ class MainWindowController: NSWindowController {
     private func setupToolbar() {
         let toolbar = NSToolbar(identifier: "MainToolbar")
         toolbar.delegate = self
-        toolbar.displayMode = .iconOnly
+        toolbar.displayMode = .iconAndLabel
         toolbar.allowsUserCustomization = false
         toolbar.autosavesConfiguration = false
         window?.toolbar = toolbar
@@ -44,7 +43,38 @@ class MainWindowController: NSWindowController {
 
     override func showWindow(_ sender: Any?) {
         window?.makeKeyAndOrderFront(sender)
+        // Force toolbar to load and layout items
+        if let toolbar = window?.toolbar {
+            let _ = toolbar.items
+            toolbar.validateVisibleItems()
+        }
         window?.makeFirstResponder(window?.contentView)
+
+        // Additional delay to ensure toolbar is fully ready
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+            let _ = self?.window?.toolbar?.items
+        }
+    }
+
+    func loadFileNow(url: URL) {
+        documentManager.loadFile(url: url)
+        window?.makeKeyAndOrderFront(nil)
+
+        // Debug
+        print("loadFileNow called, toolbar items: \(window?.toolbar?.items.count ?? 0)")
+
+        // Update toolbar item title to show filename
+        if let toolbar = window?.toolbar {
+            for item in toolbar.items {
+                print("  item: \(item.itemIdentifier.rawValue), title: \(item.title)")
+                if item.itemIdentifier.rawValue == "AppTitle" {
+                    item.title = url.lastPathComponent
+                    item.label = url.lastPathComponent
+                    print("  Updated AppTitle to: \(url.lastPathComponent)")
+                    break
+                }
+            }
+        }
     }
 
     func openFile() {
@@ -63,8 +93,35 @@ class MainWindowController: NSWindowController {
 
     private func loadFile(url: URL) {
         documentManager.loadFile(url: url)
-        titleTextField?.stringValue = url.lastPathComponent
         window?.makeKeyAndOrderFront(nil)
+
+        // Update toolbar item title with retry mechanism
+        let fileName = url.lastPathComponent
+        updateToolbarTitle(fileName, retryCount: 0)
+    }
+
+    private func updateToolbarTitle(_ title: String, retryCount: Int) {
+        if retryCount > 3 {
+            print("Failed to update toolbar title after 3 retries")
+            return
+        }
+
+        if let toolbar = window?.toolbar {
+            for item in toolbar.items {
+                if item.itemIdentifier.rawValue == "AppTitle" {
+                    item.title = title
+                    item.label = title
+                    print("Updated toolbar title to: \(title)")
+                    return
+                }
+            }
+        }
+
+        // Toolbar not ready, retry after delay
+        print("Toolbar not ready, retry \(retryCount + 1)")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+            self?.updateToolbarTitle(title, retryCount: retryCount + 1)
+        }
     }
 
     func openFile(at url: URL) {
@@ -81,7 +138,7 @@ extension MainWindowController: NSToolbarDelegate {
             item.label = s.outline
             item.paletteLabel = s.toggleOutline
             item.toolTip = s.toggleOutline
-            let config = NSImage.SymbolConfiguration(pointSize: 24, weight: .regular)
+            let config = NSImage.SymbolConfiguration(pointSize: 16, weight: .regular)
             item.image = NSImage(systemSymbolName: "sidebar.left", accessibilityDescription: s.outline)?.withSymbolConfiguration(config)
             item.target = self
             item.action = #selector(toggleSidebar(_:))
@@ -89,12 +146,8 @@ extension MainWindowController: NSToolbarDelegate {
 
         case "AppTitle":
             let item = NSToolbarItem(itemIdentifier: itemIdentifier)
+            item.title = "MDPreview"
             item.label = "MDPreview"
-            let textField = NSTextField(labelWithString: "MDPreview")
-            textField.font = NSFont.boldSystemFont(ofSize: 13)
-            textField.textColor = .labelColor
-            titleTextField = textField
-            item.view = textField
             return item
 
         case "Settings":
@@ -102,7 +155,7 @@ extension MainWindowController: NSToolbarDelegate {
             item.label = s.settings
             item.paletteLabel = s.settings
             item.toolTip = s.settings
-            let config = NSImage.SymbolConfiguration(pointSize: 24, weight: .regular)
+            let config = NSImage.SymbolConfiguration(pointSize: 16, weight: .regular)
             item.image = NSImage(systemSymbolName: "gear", accessibilityDescription: s.settings)?.withSymbolConfiguration(config)
             item.target = self
             item.action = #selector(showSettingsAction(_:))
@@ -113,7 +166,7 @@ extension MainWindowController: NSToolbarDelegate {
             item.label = s.open
             item.paletteLabel = s.open
             item.toolTip = s.open
-            let config = NSImage.SymbolConfiguration(pointSize: 24, weight: .regular)
+            let config = NSImage.SymbolConfiguration(pointSize: 16, weight: .regular)
             item.image = NSImage(systemSymbolName: "doc.badge.plus", accessibilityDescription: s.open)?.withSymbolConfiguration(config)
             item.target = self
             item.action = #selector(openFileAction(_:))

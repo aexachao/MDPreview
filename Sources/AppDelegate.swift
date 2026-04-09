@@ -19,10 +19,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Process any files that were passed before launch
         if !pendingFilesToOpen.isEmpty {
-            for url in pendingFilesToOpen {
-                mainWindowController?.openFile(at: url)
+            // Delay to ensure toolbar is fully loaded
+            DispatchQueue.main.async {
+                for url in self.pendingFilesToOpen {
+                    self.mainWindowController?.loadFileNow(url: url)
+                }
+                self.pendingFilesToOpen.removeAll()
             }
-            pendingFilesToOpen.removeAll()
         }
 
         // Ensure app is activated and window is key
@@ -177,8 +180,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if mainWindowController == nil {
             mainWindowController = MainWindowController()
         }
-        mainWindowController?.openFile()
         mainWindowController?.showWindow(nil)
+        // Delay openFile to ensure window and toolbar are fully loaded
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.mainWindowController?.openFile()
+        }
         NSApp.activate(ignoringOtherApps: true)
     }
 
