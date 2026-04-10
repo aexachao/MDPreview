@@ -63,6 +63,7 @@ struct ContentView: View {
                                 }
                             }
                         )
+                        .frame(minWidth: 400, maxWidth: .infinity)
                         .id(documentManager.currentFileURL?.absoluteString ?? "")
                     }
                 }

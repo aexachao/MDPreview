@@ -71,8 +71,9 @@ class MarkdownRenderer {
                     background-color: var(--bg-color);
                     padding: 16px 24px;
                     margin: 0;
+                    width: 100%;
                     max-width: 100%;
-                    overflow-x: auto;
+                    overflow-x: hidden;
                 }
 
                 .content {
