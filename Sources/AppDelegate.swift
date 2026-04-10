@@ -6,6 +6,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusBarController: StatusBarController?
     private let settingsManager = SettingsManager.shared
 
+    // Store all window controllers to prevent them from being deallocated
+    private var windowControllers: [MainWindowController] = []
+
     // Store files to open when app is ready (openFiles called before didFinishLaunching)
     private var pendingFilesToOpen: [URL] = []
 
@@ -53,6 +56,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // App is already initialized, create new window for each file
             for url in mdFiles {
                 let newController = MainWindowController()
+                windowControllers.append(newController)
                 newController.showWindow(nil)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     newController.openFile(at: url)
@@ -183,6 +187,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func openDocument(_ sender: Any?) {
         // Create a new window controller for each file
         let newController = MainWindowController()
+        windowControllers.append(newController)
         newController.showWindow(nil)
         // Delay openFile to ensure window and toolbar are fully loaded
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
