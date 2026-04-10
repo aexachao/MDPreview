@@ -4,7 +4,11 @@ import AppKit
 struct ContentView: View {
     @ObservedObject var documentManager: DocumentManager
     @State private var sidebarVisible = false
+    @State private var userSidebarPreference = true
+    @State private var windowWidth: CGFloat = 1200
     let windowId: Int
+
+    private let sidebarCollapseThreshold: CGFloat = 800
 
     init(documentManager: DocumentManager, windowId: Int = 0) {
         self.documentManager = documentManager
@@ -13,7 +17,6 @@ struct ContentView: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            // Sidebar
             SidebarView(
                 documentManager: documentManager,
                 selectedOutline: Binding(
@@ -26,16 +29,14 @@ struct ContentView: View {
                     }
                 )
             )
-            .frame(width: sidebarVisible ? 250 : 0, height: nil)
+            .frame(width: effectiveSidebarWidth, height: nil)
             .clipped()
 
-            // Divider
             if sidebarVisible {
                 Divider()
                     .frame(width: 1)
             }
 
-            // Detail area
             ZStack {
                 Group {
                     if let error = documentManager.errorMessage {
@@ -53,11 +54,9 @@ struct ContentView: View {
                             onVisibleHeadingChange: { [documentManager] anchor in
                                 guard let anchor = anchor,
                                       let item = documentManager.outlineItems.first(where: { $0.anchor == anchor }) else { return }
-                                // If we scrolled to the pending anchor, clear it
                                 if documentManager.pendingScrollToAnchor == anchor {
                                     documentManager.pendingScrollToAnchor = nil
                                 }
-                                // Only update selectedOutlineItem from natural scroll if no pending sidebar scroll
                                 if documentManager.pendingScrollToAnchor == nil {
                                     documentManager.selectedOutlineItem = item
                                 }
@@ -79,16 +78,42 @@ struct ContentView: View {
         .animation(.easeInOut(duration: 0.25), value: sidebarVisible)
         .frame(minWidth: 700, minHeight: 500)
         .onAppear {
-            updateSidebarVisibility()
             setupNotificationObservers()
         }
         .onChange(of: documentManager.currentFileURL) { _ in
             updateSidebarVisibility()
         }
+        .background(
+            GeometryReader { geometry in
+                Color.clear
+                    .preference(key: WindowWidthPreferenceKey.self, value: geometry.size.width)
+            }
+        )
+        .onPreferenceChange(WindowWidthPreferenceKey.self) { newWidth in
+            windowWidth = newWidth
+            updateSidebarVisibility()
+        }
+    }
+
+    private var effectiveSidebarWidth: CGFloat {
+        if sidebarVisible && windowWidth < sidebarCollapseThreshold {
+            return 0
+        }
+        return sidebarVisible ? 250 : 0
     }
 
     private func updateSidebarVisibility() {
-        sidebarVisible = documentManager.currentFileURL != nil
+        let wasVisible = sidebarVisible
+
+        if documentManager.currentFileURL != nil && windowWidth >= sidebarCollapseThreshold {
+            sidebarVisible = userSidebarPreference
+        } else {
+            sidebarVisible = false
+        }
+
+        if wasVisible != sidebarVisible {
+            userSidebarPreference = sidebarVisible
+        }
     }
 
     private func setupNotificationObservers() {
@@ -97,9 +122,9 @@ struct ContentView: View {
             object: nil,
             queue: .main
         ) { [self] notification in
-            // Only toggle if this notification is for our window
             if let notificationWindowId = notification.object as? Int, notificationWindowId == windowId {
                 sidebarVisible.toggle()
+                userSidebarPreference = sidebarVisible
             }
         }
     }
@@ -119,9 +144,12 @@ struct ContentView: View {
             }
         }
     }
+}
 
-    private func showSettings() {
-        NotificationCenter.default.post(name: .showSettings, object: nil)
+struct WindowWidthPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 1200
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
 
