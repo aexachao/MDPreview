@@ -5,10 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.27] - 2026-04-09
+
+### Fixed
+- Fix content clipping when resizing window (increase minimum window size to 700x500)
+
 ## [1.0.26] - 2026-04-09
 
 ### Fixed
-- Fix toolbar icons becoming disabled when opening files (store window controllers to prevent deallocation)
+- Fix toolbar icons becoming disabled when opening files
 
 ## [1.0.25] - 2026-04-09
 

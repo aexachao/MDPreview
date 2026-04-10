@@ -76,7 +76,7 @@ struct ContentView: View {
             .frame(minWidth: 400)
         }
         .animation(.easeInOut(duration: 0.25), value: sidebarVisible)
-        .frame(minWidth: 600, minHeight: 400)
+        .frame(minWidth: 700, minHeight: 500)
         .onAppear {
             updateSidebarVisibility()
             setupNotificationObservers()

@@ -16,7 +16,7 @@ class MainWindowController: NSWindowController {
         window.titlebarAppearsTransparent = true
         window.titleVisibility = .hidden
         window.center()
-        window.minSize = NSSize(width: 600, height: 400)
+        window.minSize = NSSize(width: 700, height: 500)
         window.setFrameAutosaveName("MainWindow-\(UUID().uuidString)")
         window.isReleasedWhenClosed = true  // Keep window in memory when closed
 
