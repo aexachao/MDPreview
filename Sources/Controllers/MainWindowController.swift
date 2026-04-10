@@ -33,7 +33,18 @@ class MainWindowController: NSWindowController, NSWindowDelegate {
     private func setupContentView() {
         contentView = ContentView(documentManager: documentManager, windowId: window?.hashValue ?? 0)
         let hostingView = NSHostingView(rootView: contentView!)
+        hostingView.translatesAutoresizingMaskIntoConstraints = false
         window?.contentView = hostingView
+
+        // Ensure hosting view fills the content area
+        if let contentView = window?.contentView {
+            NSLayoutConstraint.activate([
+                hostingView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+                hostingView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+                hostingView.topAnchor.constraint(equalTo: contentView.topAnchor),
+                hostingView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+            ])
+        }
     }
 
     private func setupToolbar() {
