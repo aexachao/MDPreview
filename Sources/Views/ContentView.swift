@@ -63,7 +63,7 @@ struct ContentView: View {
                                 }
                             }
                         )
-                        .frame(minWidth: 400, maxWidth: .infinity)
+                        .frame(minWidth: 400, maxWidth: .infinity, alignment: .center)
                         .id(documentManager.currentFileURL?.absoluteString ?? "")
                     }
                 }
@@ -74,7 +74,7 @@ struct ContentView: View {
                     }
                 }
             }
-            .frame(minWidth: 400)
+            .frame(minWidth: 400, alignment: .center)
         }
         .animation(.easeInOut(duration: 0.25), value: sidebarVisible)
         .frame(minWidth: 700, minHeight: 500)
