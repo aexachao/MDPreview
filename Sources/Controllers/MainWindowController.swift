@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-class MainWindowController: NSWindowController {
+class MainWindowController: NSWindowController, NSWindowDelegate {
     private var documentManager = DocumentManager()
     private var contentView: ContentView?
 
@@ -16,13 +16,15 @@ class MainWindowController: NSWindowController {
         window.titlebarAppearsTransparent = true
         window.titleVisibility = .hidden
         window.center()
-        window.setFrameAutosaveName("MainWindow-\(UUID().uuidString)")
+        window.setFrameAutosaveName("")
         window.isReleasedWhenClosed = true  // Keep window in memory when closed
-
-        // Set min size after autosave to ensure it's not overridden
         window.minSize = NSSize(width: 800, height: 600)
+        window.contentMinSize = NSSize(width: 800, height: 600)
 
         self.init(window: window)
+
+        // Set delegate after init
+        window.delegate = self
 
         setupContentView()
         setupToolbar()
@@ -45,6 +47,7 @@ class MainWindowController: NSWindowController {
 
     override func showWindow(_ sender: Any?) {
         window?.makeKeyAndOrderFront(sender)
+
         // Force toolbar to load and layout items
         if let toolbar = window?.toolbar {
             let _ = toolbar.items
@@ -56,6 +59,14 @@ class MainWindowController: NSWindowController {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
             let _ = self?.window?.toolbar?.items
         }
+    }
+
+    // Enforce minimum window size during resize
+    func windowWillResize(_ sender: NSWindow, to frameSize: NSSize) -> NSSize {
+        var newSize = frameSize
+        newSize.width = max(newSize.width, 800)
+        newSize.height = max(newSize.height, 600)
+        return newSize
     }
 
     func loadFileNow(url: URL) {

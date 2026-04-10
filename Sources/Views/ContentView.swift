@@ -88,9 +88,9 @@ struct ContentView: View {
                 setupNotificationObservers()
             }
             .onChange(of: documentManager.currentFileURL) { _ in
-                // When document changes, reset to auto mode and update sidebar visibility
+                // When document changes, reset to auto mode and update sidebar visibility based on window width
                 userManuallyToggled = false
-                sidebarVisible = documentManager.currentFileURL != nil
+                sidebarVisible = windowWidth >= sidebarCollapseThreshold && documentManager.currentFileURL != nil
             }
             .onChange(of: geometry.size.width) { newWidth in
                 windowWidth = newWidth
