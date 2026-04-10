@@ -11,7 +11,7 @@ struct ContentView: View {
     @State private var userManuallyToggled = false
 
     // Auto restore threshold - when window is wide enough, re-enable auto mode
-    private let autoRestoreThreshold: CGFloat = 1200
+    private let autoRestoreThreshold: CGFloat = 1800
 
     // Threshold = content max-width (800) + sidebar width (250) + divider (1)
     private let sidebarCollapseThreshold: CGFloat = 1100
