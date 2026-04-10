@@ -4,17 +4,7 @@ import AppKit
 struct ContentView: View {
     @ObservedObject var documentManager: DocumentManager
     @State private var sidebarVisible = false
-    @State private var windowWidth: CGFloat = 1200
     let windowId: Int
-
-    // Track if user manually toggled sidebar
-    @State private var userManuallyToggled = false
-
-    // Auto restore threshold - when window is wide enough, re-enable auto mode
-    private let autoRestoreThreshold: CGFloat = 1800
-
-    // Threshold = content max-width (800) + sidebar width (250) + divider (1)
-    private let sidebarCollapseThreshold: CGFloat = 1100
 
     init(documentManager: DocumentManager, windowId: Int = 0) {
         self.documentManager = documentManager
@@ -22,96 +12,70 @@ struct ContentView: View {
     }
 
     var body: some View {
-        GeometryReader { geometry in
-            HStack(spacing: 0) {
-                SidebarView(
-                    documentManager: documentManager,
-                    selectedOutline: Binding(
-                        get: { documentManager.selectedOutlineItem },
-                        set: { newValue in
-                            documentManager.selectedOutlineItem = newValue
-                            if let item = newValue {
-                                documentManager.pendingScrollToAnchor = item.anchor
-                            }
+        HStack(spacing: 0) {
+            SidebarView(
+                documentManager: documentManager,
+                selectedOutline: Binding(
+                    get: { documentManager.selectedOutlineItem },
+                    set: { newValue in
+                        documentManager.selectedOutlineItem = newValue
+                        if let item = newValue {
+                            documentManager.pendingScrollToAnchor = item.anchor
                         }
-                    )
+                    }
                 )
-                .frame(width: sidebarVisible ? 250 : 0, height: nil)
-                .clipped()
+            )
+            .frame(width: sidebarVisible ? 250 : 0, height: nil)
+            .clipped()
 
-                if sidebarVisible {
-                    Divider()
-                        .frame(width: 1)
-                }
+            if sidebarVisible {
+                Divider()
+                    .frame(width: 1)
+            }
 
-                ZStack {
-                    Group {
-                        if let error = documentManager.errorMessage {
-                            ErrorView(message: error)
-                        } else if documentManager.currentFileURL == nil {
-                            EmptyStateView {
-                                openFile()
-                            }
-                        } else if documentManager.markdownContent.isEmpty {
-                            EmptyMarkdownView()
-                        } else {
-                            MarkdownWebView(
-                                html: documentManager.renderedHTML,
-                                scrollToAnchor: documentManager.pendingScrollToAnchor,
-                                onVisibleHeadingChange: { [documentManager] anchor in
-                                    guard let anchor = anchor,
-                                          let item = documentManager.outlineItems.first(where: { $0.anchor == anchor }) else { return }
-                                    if documentManager.pendingScrollToAnchor == anchor {
-                                        documentManager.pendingScrollToAnchor = nil
-                                    }
-                                    if documentManager.pendingScrollToAnchor == nil {
-                                        documentManager.selectedOutlineItem = item
-                                    }
+            ZStack {
+                Group {
+                    if let error = documentManager.errorMessage {
+                        ErrorView(message: error)
+                    } else if documentManager.currentFileURL == nil {
+                        EmptyStateView {
+                            openFile()
+                        }
+                    } else if documentManager.markdownContent.isEmpty {
+                        EmptyMarkdownView()
+                    } else {
+                        MarkdownWebView(
+                            html: documentManager.renderedHTML,
+                            scrollToAnchor: documentManager.pendingScrollToAnchor,
+                            onVisibleHeadingChange: { [documentManager] anchor in
+                                guard let anchor = anchor,
+                                      let item = documentManager.outlineItems.first(where: { $0.anchor == anchor }) else { return }
+                                if documentManager.pendingScrollToAnchor == anchor {
+                                    documentManager.pendingScrollToAnchor = nil
                                 }
-                            )
-                            .frame(minWidth: 400, maxWidth: .infinity, alignment: .center)
-                            .id(documentManager.currentFileURL?.absoluteString ?? "")
-                        }
-                    }
-
-                    if documentManager.currentFileURL == nil {
-                        EmptyDropZone { url in
-                            documentManager.loadFile(url: url)
-                        }
+                                if documentManager.pendingScrollToAnchor == nil {
+                                    documentManager.selectedOutlineItem = item
+                                }
+                            }
+                        )
+                        .frame(minWidth: 400, maxWidth: .infinity, alignment: .center)
+                        .id(documentManager.currentFileURL?.absoluteString ?? "")
                     }
                 }
-                .frame(minWidth: 400, alignment: .center)
-            }
-            .animation(.easeInOut(duration: 0.25), value: sidebarVisible)
-            .frame(minWidth: 800, minHeight: 600)
-            .onAppear {
-                setupNotificationObservers()
-            }
-            .onChange(of: documentManager.currentFileURL) { _ in
-                // When document changes, reset to auto mode and update sidebar visibility based on window width
-                userManuallyToggled = false
-                sidebarVisible = windowWidth >= sidebarCollapseThreshold && documentManager.currentFileURL != nil
-            }
-            .onChange(of: geometry.size.width) { newWidth in
-                windowWidth = newWidth
-                updateSidebarForWidth(newWidth)
-            }
-        }
-    }
 
-    private func updateSidebarForWidth(_ width: CGFloat) {
-        // Auto restore: when window is wide enough, re-enable auto mode
-        if width >= autoRestoreThreshold {
-            userManuallyToggled = false
+                if documentManager.currentFileURL == nil {
+                    EmptyDropZone { url in
+                        documentManager.loadFile(url: url)
+                    }
+                }
+            }
+            .frame(minWidth: 400, alignment: .center)
         }
-
-        if userManuallyToggled {
-            // User manually toggled, don't override their choice
-            return
+        .animation(.easeInOut(duration: 0.25), value: sidebarVisible)
+        .frame(minWidth: 800, minHeight: 600)
+        .onAppear {
+            setupNotificationObservers()
         }
-
-        let shouldShow = width >= sidebarCollapseThreshold && documentManager.currentFileURL != nil
-        sidebarVisible = shouldShow
     }
 
     private func setupNotificationObservers() {
@@ -122,7 +86,6 @@ struct ContentView: View {
         ) { [self] notification in
             if let notificationWindowId = notification.object as? Int, notificationWindowId == windowId {
                 sidebarVisible.toggle()
-                userManuallyToggled = true
             }
         }
     }
