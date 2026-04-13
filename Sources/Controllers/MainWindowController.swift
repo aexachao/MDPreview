@@ -93,17 +93,19 @@ class MainWindowController: NSWindowController, NSWindowDelegate {
         documentManager.loadFile(url: url)
         window?.makeKeyAndOrderFront(nil)
 
-        // Debug
-        print("loadFileNow called, toolbar items: \(window?.toolbar?.items.count ?? 0)")
+        // Notify AppDelegate to register this file URL
+        NotificationCenter.default.post(
+            name: .fileDidOpen,
+            object: url,
+            userInfo: ["windowController": self]
+        )
 
         // Update toolbar item title to show filename
         if let toolbar = window?.toolbar {
             for item in toolbar.items {
-                print("  item: \(item.itemIdentifier.rawValue), title: \(item.title)")
                 if item.itemIdentifier.rawValue == "AppTitle" {
                     item.title = url.lastPathComponent
                     item.label = url.lastPathComponent
-                    print("  Updated AppTitle to: \(url.lastPathComponent)")
                     break
                 }
             }
@@ -243,4 +245,5 @@ extension MainWindowController: NSToolbarDelegate {
 extension Notification.Name {
     static let toggleSidebar = Notification.Name("toggleSidebar")
     static let windowWillClose = Notification.Name("windowWillClose")
+    static let fileDidOpen = Notification.Name("fileDidOpen")
 }

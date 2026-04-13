@@ -15,6 +15,72 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // Store files to open when app is ready (openFiles called before didFinishLaunching)
     private var pendingFilesToOpen: [URL] = []
 
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        // Check for fresh install or update and clear settings if needed
+        checkAndHandleVersionChange()
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(statusBarVisibilityChanged(_:)),
+            name: .statusBarVisibilityChanged,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(showSettings(_:)),
+            name: .showSettings,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(windowWillClose(_:)),
+            name: .windowWillClose,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(fileOpenRequest(_:)),
+            name: .fileOpenRequest,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(fileDidOpen(_:)),
+            name: .fileDidOpen,
+            object: nil
+        )
+    }
+
+    private func checkAndHandleVersionChange() {
+        let currentVersion = getCurrentVersion()
+        let storedVersion = UserDefaults.standard.string(forKey: "lastRunVersion")
+
+        if storedVersion == nil {
+            // Fresh install - clear any old settings
+            clearAllSettings()
+        } else if storedVersion != currentVersion {
+            // Version changed - could be update or reinstall
+            // For now, treat as update, clear problematic settings
+            UserDefaults.standard.removeObject(forKey: "openFileURLs")
+        }
+
+        UserDefaults.standard.set(currentVersion, forKey: "lastRunVersion")
+    }
+
+    private func clearAllSettings() {
+        if let bundleID = Bundle.main.bundleIdentifier {
+            UserDefaults.standard.removePersistentDomain(forName: bundleID)
+        }
+    }
+
+    private func getCurrentVersion() -> String {
+        guard let versionFile = Bundle.main.url(forResource: "VERSION", withExtension: nil),
+              let version = try? String(contentsOf: versionFile, encoding: .utf8) else {
+            return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        }
+        return version.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         setupMenuBar()
         setupStatusBar()
@@ -80,33 +146,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.reply(toOpenOrPrint: .success)
     }
 
-    func applicationWillFinishLaunching(_ notification: Notification) {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(statusBarVisibilityChanged(_:)),
-            name: .statusBarVisibilityChanged,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(showSettings(_:)),
-            name: .showSettings,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(windowWillClose(_:)),
-            name: .windowWillClose,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(fileOpenRequest(_:)),
-            name: .fileOpenRequest,
-            object: nil
-        )
-    }
-
     @objc private func windowWillClose(_ notification: Notification) {
         guard let windowController = notification.object as? MainWindowController else { return }
 
@@ -125,6 +164,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func fileOpenRequest(_ notification: Notification) {
         guard let url = notification.object as? URL else { return }
         openFile(at: url)
+    }
+
+    @objc private func fileDidOpen(_ notification: Notification) {
+        guard let url = notification.object as? URL,
+              let windowController = notification.userInfo?["windowController"] as? MainWindowController else { return }
+        openFileURLs[url] = windowController
     }
 
     @objc private func statusBarVisibilityChanged(_ notification: Notification) {

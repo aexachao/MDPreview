@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.38] - 2026-04-13
+
+### Fixed
+- Fix duplicate window issue when opening file before app launch
+- Detect fresh install and clear old settings
+- Settings now correctly displays version from VERSION file
+
 ## [1.0.37] - 2026-04-13
 
 ### Fixed
