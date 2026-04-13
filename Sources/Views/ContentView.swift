@@ -65,7 +65,7 @@ struct ContentView: View {
 
                 if documentManager.currentFileURL == nil {
                     EmptyDropZone { url in
-                        documentManager.loadFile(url: url)
+                        NotificationCenter.default.post(name: .fileOpenRequest, object: url)
                     }
                 }
             }
@@ -100,7 +100,7 @@ struct ContentView: View {
 
             panel.beginSheetModal(for: window) { response in
                 if response == .OK, let url = panel.url {
-                    documentManager.loadFile(url: url)
+                    NotificationCenter.default.post(name: .fileOpenRequest, object: url)
                 }
             }
         }
@@ -239,6 +239,7 @@ class DropZoneNSView: NSView {
 
 extension Notification.Name {
     static let showSettings = Notification.Name("showSettings")
+    static let fileOpenRequest = Notification.Name("fileOpenRequest")
 }
 
 struct ErrorView: View {

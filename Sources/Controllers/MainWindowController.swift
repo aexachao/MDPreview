@@ -80,6 +80,15 @@ class MainWindowController: NSWindowController, NSWindowDelegate {
         return newSize
     }
 
+    func windowWillClose(_ notification: Notification) {
+        // Notify AppDelegate to remove from openFileURLs tracking
+        NotificationCenter.default.post(
+            name: .windowWillClose,
+            object: self,
+            userInfo: ["windowController": self]
+        )
+    }
+
     func loadFileNow(url: URL) {
         documentManager.loadFile(url: url)
         window?.makeKeyAndOrderFront(nil)
@@ -233,4 +242,5 @@ extension MainWindowController: NSToolbarDelegate {
 
 extension Notification.Name {
     static let toggleSidebar = Notification.Name("toggleSidebar")
+    static let windowWillClose = Notification.Name("windowWillClose")
 }

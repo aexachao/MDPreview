@@ -9,6 +9,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // Store all window controllers to prevent them from being deallocated
     private var windowControllers: [MainWindowController] = []
 
+    // Track open file URLs and their corresponding window controllers
+    private var openFileURLs: [URL: MainWindowController] = [:]
+
     // Store files to open when app is ready (openFiles called before didFinishLaunching)
     private var pendingFilesToOpen: [URL] = []
 
@@ -53,13 +56,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         if mainWindowController != nil {
-            // App is already initialized, create new window for each file
+            // App is already initialized, check if files are already open
             for url in mdFiles {
-                let newController = MainWindowController()
-                windowControllers.append(newController)
-                newController.showWindow(nil)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    newController.openFile(at: url)
+                if let existingController = openFileURLs[url] {
+                    // File already open, bring that window to front and load the file
+                    existingController.showWindow(nil)
+                    existingController.loadFileNow(url: url)
+                } else {
+                    // Create new window for new file
+                    let newController = MainWindowController()
+                    windowControllers.append(newController)
+                    openFileURLs[url] = newController
+                    newController.showWindow(nil)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        newController.openFile(at: url)
+                    }
                 }
             }
         } else {
@@ -82,6 +93,38 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             name: .showSettings,
             object: nil
         )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(windowWillClose(_:)),
+            name: .windowWillClose,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(fileOpenRequest(_:)),
+            name: .fileOpenRequest,
+            object: nil
+        )
+    }
+
+    @objc private func windowWillClose(_ notification: Notification) {
+        guard let windowController = notification.object as? MainWindowController else { return }
+
+        // Remove from openFileURLs if present
+        for (url, controller) in openFileURLs {
+            if controller === windowController {
+                openFileURLs.removeValue(forKey: url)
+                break
+            }
+        }
+
+        // Remove from windowControllers
+        windowControllers.removeAll { $0 === windowController }
+    }
+
+    @objc private func fileOpenRequest(_ notification: Notification) {
+        guard let url = notification.object as? URL else { return }
+        openFile(at: url)
     }
 
     @objc private func statusBarVisibilityChanged(_ notification: Notification) {
@@ -185,13 +228,38 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc func openDocument(_ sender: Any?) {
-        // Create a new window controller for each file
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.init(filenameExtension: "md")!]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+
+        panel.beginSheetModal(for: mainWindowController!.window!) { [weak self] response in
+            if response == .OK, let url = panel.url {
+                self?.openFile(at: url)
+            }
+        }
+    }
+
+    func openFile(at url: URL) {
+        // Check if file is already open
+        if let existingController = openFileURLs[url] {
+            // File already open, bring that window to front and load the file
+            existingController.showWindow(nil)
+            existingController.loadFileNow(url: url)
+            NSApp.activate(ignoringOtherApps: true)
+            return
+        }
+
+        // Create new window for new file
         let newController = MainWindowController()
         windowControllers.append(newController)
+        openFileURLs[url] = newController
         newController.showWindow(nil)
         // Delay openFile to ensure window and toolbar are fully loaded
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            newController.openFile()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            newController.openFile(at: url)
+            // Also register in loadFileNow
         }
         NSApp.activate(ignoringOtherApps: true)
     }
